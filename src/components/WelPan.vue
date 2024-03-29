@@ -42,6 +42,7 @@
 
 <script lang="ts">
 import languages from '@/assets/l10n/_l10nconfig.json'
+import Umami from '@bitprojects/umami-logger-typescript'
 
 import { defineComponent } from 'vue'
 import { runtimeData } from '@/function/msg'
@@ -61,8 +62,9 @@ export default defineComponent({
     methods: {
         gaLanguage(event: Event) {
             const sender = event.target as HTMLInputElement
-            // GA：上传语言选择
-            this.$gtag.event('use_language', { name: sender.value })
+            // UM：上传语言选择
+            Umami.trackEvent('use_language', { name: sender.value })
+
         },
         setPage(name: string) {
             this.show = name

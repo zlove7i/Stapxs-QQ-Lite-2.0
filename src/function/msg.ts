@@ -17,6 +17,8 @@ import Util from './util'
 import xss from 'xss'
 import pinyin from 'pinyin'
 
+import Umami from '@bitprojects/umami-logger-typescript'
+
 import { buildMsgList, getMsgData, parseMsgList } from '@/utils/msgUtil'
 
 import { Md5 } from 'ts-md5'
@@ -109,14 +111,12 @@ function saveBotInfo(msg: { [key: string]: any }) {
     if (msgBody) {
         const data = msgBody[0]
         runtimeData.botInfo = data
-        // GA：提交分析信息，主要在意的是 bot 类型
+        // UM：提交分析信息，主要在意的是 bot 类型
         if (Option.get('open_ga_bot') !== false) {
             if (data.app_name !== undefined) {
-                app.config.globalProperties.
-                    $gtag.event('login', { method: data.app_name })
+                    Umami.trackEvent('connect', { method: data.app_name })
             } else {
-                app.config.globalProperties.
-                    $gtag.event('login')
+                Umami.trackEvent('connect', { method: '' })
             }
         }
         if(!login.status) {
@@ -161,13 +161,6 @@ function saveLoginInfo(msg: { [key: string]: any }) {
             { 'url': url, 'method': 'post', 'data': info },
             'getMoreLoginInfo'
         )
-        // GA：将 QQ 号 MD5 编码后用于用户识别码
-        if (Option.get('open_ga_user') == true && process.env.NODE_ENV == 'production') {
-            const userId = Md5.hashStr(data.uin)
-            app.config.globalProperties.$gtag.config({
-                user_id: userId
-            })
-        }
         // 加载列表消息
         Util.reloadUsers()
     }

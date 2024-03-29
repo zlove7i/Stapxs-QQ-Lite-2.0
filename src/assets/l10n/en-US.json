@@ -126,7 +126,7 @@
   "option_fun_ga": "Message stats",
   "option_fun_ga_bot": "Backend stats",
   "option_fun_ga_bot_tip": "Tells us the type of bots you're using",
-  "option_fun_ga_tip": "We utilize Google Analytics to analyze the usage of the app. All the data are solely for usage analyses only and don't include identifiable infomation (unless you explicitly enable it). You can opt in or out of it from here.",
+  "option_fun_ga_tip": "We utilize Umami to analyze the usage of the app. All the data are solely for usage analyses only and don't include identifiable infomation (unless you explicitly enable it). You can opt in or out of it from here.",
   "option_fun_ga_turn": "Fully opt-out",
   "option_fun_ga_turn_tip": "Disable all telemetry functions",
   "option_fun_ga_user": "User-based analytics",

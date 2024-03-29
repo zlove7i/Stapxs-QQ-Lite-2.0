@@ -224,6 +224,7 @@ import cmp from 'semver-compare'
 import appInfo from '../package.json'
 import app from '@/main'
 import Option from '@/function/option'
+import Umami from '@bitprojects/umami-logger-typescript'
 
 import { defineComponent, defineAsyncComponent } from 'vue'
 import { Connector, login as loginInfo } from '@/function/connect'
@@ -231,7 +232,6 @@ import { Logger, popList, PopInfo } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import { loadHistory, getTrueLang, gitmojiToEmoji, openLink } from '@/function/util'
-import { DomainConfig, useState } from 'vue-gtag-next'
 
 import Options from '@/pages/Options.vue'
 import Friends from '@/pages/Friends.vue'
@@ -300,11 +300,8 @@ export default defineComponent({
          * @param show 是否显示聊天面板
          */
         changeTab (name: string, view: string, show: boolean) {
-            // GA：发送页面路由分析
-            this.$gtag.pageview({
-              page_path: '/' + view,
-              page_title: name
-            })
+            // UM：发送页面路由分析
+            Umami.trackPageView('/' + view)
             this.tags.showChat = !show
         },
 
@@ -469,14 +466,12 @@ export default defineComponent({
                 // 布局检查工具
                 Spacing.start()
             }
-            // GA：加载谷歌分析功能
+            // UM：加载 Umami 统计功能
             if (!Option.get('close_ga') && process.env.NODE_ENV == 'production') {
-                const { property } = useState()
-                if (property) {
-                    property.value = {
-                        id: process.env.VUE_APP_GA
-                    } as DomainConfig
-                }
+                Umami.initialize({
+                    baseUrl: process.env.VUE_APP_MU_ADDRESS,
+                    websiteId: process.env.VUE_APP_MU_ID,
+                });
             } else if (process.env.NODE_ENV == 'development') {
                 logger.debug(this.$t('log_GA_auto_closed'))
             }

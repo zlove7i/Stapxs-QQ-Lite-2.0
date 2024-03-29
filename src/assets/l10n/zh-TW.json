@@ -123,7 +123,7 @@
   "option_fun_ga": "分析資訊",
   "option_fun_ga_bot": "後端類型統計",
   "option_fun_ga_bot_tip": "成功連線後上傳所使用的 Bot 的類型統計",
-  "option_fun_ga_tip": "我們使用 Google Analytics 對應用程式的使用情形進行分析。所有分析資訊均不會包含精確到使用者的資料，並僅限用於使用情形的分析。你可以在這裡控制分析功能及額外分析項目的啟用狀況。",
+  "option_fun_ga_tip": "我們使用 Umami 對應用程式的使用情形進行分析。所有分析資訊均不會包含精確到使用者的資料，並僅限用於使用情形的分析。你可以在這裡控制分析功能及額外分析項目的啟用狀況。",
   "option_fun_ga_turn": "關閉分析",
   "option_fun_ga_turn_tip": "真的不給看嗎（小聲",
   "option_fun_ga_user": "定性分析",

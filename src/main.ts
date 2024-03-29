@@ -1,7 +1,6 @@
 import VueViewer from 'v-viewer'
 import VueClipboard from 'vue-clipboard2'
 import InfiniteScroll from 'vue3-infinite-scroll-better'
-import VueGtag from 'vue-gtag-next'
 import packageInfo from '../package.json'
 
 import App from './App.vue'
@@ -41,7 +40,6 @@ app.use(i18n)
 app.use(VueViewer)
 app.use(VueClipboard)
 app.use(InfiniteScroll)
-app.use(VueGtag)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 

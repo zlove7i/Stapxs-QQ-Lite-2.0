@@ -983,6 +983,13 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
+"@bitprojects/umami-logger-typescript@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.npmmirror.com/@bitprojects/umami-logger-typescript/-/umami-logger-typescript-1.0.10.tgz#55bc4637bd1e75154371ff89432ad1cbd27ebb69"
+  integrity sha512-nOB+eDEMdkl9y6lqvWHdCfj0G9PHFrjk4XzGNh8LRzf/I5HNn4DuFy7miTnSltIInOePFXJ4rBxYg6l6RVgKFw==
+  dependencies:
+    axios "^1.5.0"
+
 "@ctrl/tinycolor@^3.4.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@ctrl/tinycolor/-/tinycolor-3.5.0.tgz#6e52b3d1c38d13130101771821e09cdd414a16bc"
@@ -2973,6 +2980,15 @@ aws4@^1.8.0:
   version "1.12.0"
   resolved "https://registry.npmmirror.com/aws4/-/aws4-1.12.0.tgz#ce1c9d143389679e253b314241ea9aa5cec980d3"
   integrity sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==
+
+axios@^1.5.0:
+  version "1.6.8"
+  resolved "https://registry.npmmirror.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
+  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 babel-loader@^8.2.2:
   version "8.3.0"
@@ -5505,6 +5521,11 @@ follow-redirects@^1.0.0:
   version "1.15.2"
   resolved "https://registry.npmmirror.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
+
+follow-redirects@^1.15.6:
+  version "1.15.6"
+  resolved "https://registry.npmmirror.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
+  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -8609,6 +8630,11 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
+proxy-from-env@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmmirror.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
+  integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
+
 prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
@@ -10703,11 +10729,6 @@ vue-eslint-parser@^8.0.0, vue-eslint-parser@^8.0.1:
     esquery "^1.4.0"
     lodash "^4.17.21"
     semver "^7.3.5"
-
-vue-gtag-next@^1.14.0:
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/vue-gtag-next/-/vue-gtag-next-1.14.0.tgz#793aef0b90dff4213b9f3a79827cd99b06e678dd"
-  integrity sha512-iJl+cOG2GU5NuxqzSSIpt03WVOvZqyKB9TOy7d55KiuvRklcnb2nlqxW5B/a3/sbIt7fla+XEkRyMCcoz0zAHw==
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"

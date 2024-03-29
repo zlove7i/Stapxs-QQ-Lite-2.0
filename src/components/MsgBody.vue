@@ -120,6 +120,7 @@ import Util from '@/function/util'
 import Option from '@/function/option'
 import CardMessage from './msg-component/CardMessage.vue'
 import app from '@/main'
+import Umami from '@bitprojects/umami-logger-typescript'
 
 import { MsgBodyFuns as ViewFuns } from '@/function/model/msg-body'
 import { defineComponent } from 'vue'
@@ -339,25 +340,25 @@ export default defineComponent({
                             }
                             this.pageViewInfo = pageData
                         }
-                        // GA：上传使用链接预览功能的事件用于分析（成功）
+                        // UM：上传使用链接预览功能的事件用于分析（成功）
                         const reg1 = /\/\/(.*?)\//g
                         const getDom = fistLink.match(reg1)
                         if (getDom !== null) {
-                            this.$gtag.event('link_view', { domain: RegExp.$1, statue: true })
+                            Umami.trackEvent('link_view', { domain: RegExp.$1, statue: true })
                         } else {
-                            this.$gtag.event('link_view')
+                            Umami.trackEvent('link_view', { domain: '', statue: true })
                         }
                     })
                     .catch(error => {
                         if (error) {
                             logger.error(this.$t('chat_link_view_fail') + ': ' + fistLink)
-                            // GA：上传使用链接预览功能的事件用于分析（失败）
+                            // UM：上传使用链接预览功能的事件用于分析（失败）
                             const reg1 = /\/\/(.*?)\//g
                             const getDom = fistLink.match(reg1)
                             if (getDom !== null) {
-                                this.$gtag.event('link_view', { domain: RegExp.$1, statue: false })
+                                Umami.trackEvent('link_view', { domain: RegExp.$1, statue: false })
                             } else {
-                                this.$gtag.event('link_view')
+                                Umami.trackEvent('link_view', { domain: '', statue: false })
                             }
                         }
                     })

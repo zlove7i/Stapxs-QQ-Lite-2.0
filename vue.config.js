@@ -68,16 +68,16 @@ module.exports = {
          */
         electronBuilder: {
             builderOptions: {
-                appId: 'com.stapxs.qq-web',
+                appId: 'com.stapxs.qqweb',
                 productName: 'Stapxs QQ Lite',
-                copyright: 'Copyright © 2022-2023 Stapx Steve [林槐]',
+                copyright: 'Copyright © 2022-2024 Stapx Steve [林槐]',
 
                 directories: {
                     output: 'dist_electron/out'
                 },
                 
                 linux: {
-                    target: process.env.NODEJS_ENV === 'github-actions' ? ['AppImage', 'tar.gz'] : 'pacman',
+                    target: ['AppImage', 'tar.gz', 'pacman'],
                     maintainer: 'Stapx Steve [林槐]',
                     vendor: 'Stapxs Steve Team',
                     synopsis: '一个兼容 oicq-http 的非官方网页版 QQ 客户端。',
@@ -100,12 +100,26 @@ module.exports = {
                         {
                             target: 'portable',
                             arch: 'x64'
-                        }
+                        },
+                        // {
+                        //     target: 'appx',
+                        //     arch: 'x64'
+                        // }
                     ],
-                    appId: 'com.stapxs.qq-web',
+                    appId: 'com.stapxs.qqweb',
                     icon: 'public/img/icons/icon.png',
-                    legalTrademarks: 'Copyright © 2022-2023 Stapx Steve [林槐]',
+                    legalTrademarks: 'Copyright © 2022-2024 Stapx Steve [林槐]',
+                    publisherName: 'stapxs',
                 },
+                // appx: {
+                //     applicationId: "com.stapxs.qqweb",
+                //     backgroundColor: "#606E7A",
+                //     displayName: "Stapxs QQ Lite",
+                //     identityName: "stapxs-qq-lite",
+                //     languages: ["en-US", "zh-CN", "zh-HK", "zh-TW"],
+                    
+                //     publisherDisplayName: "Stapx Steve [林槐]"
+                // },
 
                 mac: {
                     target: [

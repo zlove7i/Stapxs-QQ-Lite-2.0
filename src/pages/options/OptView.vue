@@ -203,6 +203,8 @@
 </template>
 
 <script lang="ts">
+import Umami from '@bitprojects/umami-logger-typescript'
+
 import { defineComponent, toRaw } from 'vue'
 import { runtimeData } from '../../function/msg'
 import { runASWEvent as save, get } from '../../function/option'
@@ -227,8 +229,8 @@ export default defineComponent({
     methods: {
         gaLanguage(event: Event) {
             const sender = event.target as HTMLInputElement
-            // GA：上传语言选择
-            this.$gtag.event('use_language', { name: sender.value })
+            // UM：上传语言选择
+            Umami.trackEvent('use_language', { name: sender.value })
         },
 
         setInitialScaleShow(event: Event) {

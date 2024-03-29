@@ -4,7 +4,6 @@ import os from 'os'
 
 import { ipcMain, shell, systemPreferences, app } from "electron"
 import { GtkTheme, GtkData } from '@jakejarrett/gtk-theme'
-import { Exception } from 'vue-gtag-next'
 import { queryKeys } from './util'
 import { win } from '@/background'
 
@@ -83,7 +82,7 @@ export default function regIpcListener() {
             const color = info.stdout.substring(info.stdout.lastIndexOf('0xff') + 4)
             return { color: [parseInt('0x' + color.substring(4, 6)), parseInt('0x' + color.substring(2, 4)), parseInt('0x' + color.substring(0, 2))] }
         } catch(ex) {
-            return { err: (ex as Exception).description }
+            return { err: (ex as Error).message }
         }
     }
     // 下载文件

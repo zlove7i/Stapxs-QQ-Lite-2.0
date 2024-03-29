@@ -128,7 +128,7 @@
   "option_fun_ga": "Analytics",
   "option_fun_ga_bot": "Backend 類型分析",
   "option_fun_ga_bot_tip": "喺連接後 upload bot 類型",
-  "option_fun_ga_tip": "我哋使用 Google Analytics 對 App 嘅使用情況進行分析，所有分析資訊唔會精確到使用者，而且僅用於進行使用情況分析。你可以喺呢度控制分析功能的開關和額外分析項。",
+  "option_fun_ga_tip": "我哋使用 Umami 對 App 嘅使用情況進行分析，所有分析資訊唔會精確到使用者，而且僅用於進行使用情況分析。你可以喺呢度控制分析功能的開關和額外分析項。",
   "option_fun_ga_turn": "停用 Analytics",
   "option_fun_ga_turn_tip": "真係不俾睇？（小聲",
   "option_fun_ga_user": "定向分析",

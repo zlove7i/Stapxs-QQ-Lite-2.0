@@ -137,30 +137,17 @@
                 </div>
                 <label class="ss-switch">
                     <input type="checkbox" @change="save" name="close_ga" v-model="runtimeData.sysConfig.close_ga">
-                    <div>
+                    <div style="background: var(--color-card-2);">
                         <div></div>
                     </div>
                 </label>
             </div>
             <div class="tip" v-if="runtimeData.sysConfig.close_ga !== true">
                 {{ $t('option_fun_ga_tip') }}
-            </div>
-            <div class="opt-item" v-if="runtimeData.sysConfig.close_ga !== true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                    <path
-                        d="M429.6 92.1c4.9-11.9 2.1-25.6-7-34.7s-22.8-11.9-34.7-7l-352 144c-14.2 5.8-22.2 20.8-19.3 35.8s16.1 25.8 31.4 25.8H224V432c0 15.3 10.8 28.4 25.8 31.4s30-5.1 35.8-19.3l144-352z" />
-                </svg>
-                <div>
-                    <span>{{ $t('option_fun_ga_user') }}</span>
-                    <span>{{ $t('option_fun_ga_user_tip') }}</span>
+                <div class="ga-share">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 428 389.11"><circle cx="214.15" cy="181" r="171" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="20"></circle><path d="M413 134.11H15.29a15 15 0 0 0-15 15v15.3C.12 168 0 171.52 0 175.11c0 118.19 95.81 214 214 214 116.4 0 211.1-92.94 213.93-208.67 0-.44.07-.88.07-1.33v-30a15 15 0 0 0-15-15Z"></path></svg>
+                    <a :href="shareLink" target="_blank">{{ $t('name') }} {{ $t('option_fun_ga_tip_1') }}</a>
                 </div>
-                <label class="ss-switch">
-                    <input type="checkbox" @change="save" name="open_ga_user"
-                        v-model="runtimeData.sysConfig.open_ga_user">
-                    <div>
-                        <div></div>
-                    </div>
-                </label>
             </div>
             <div class="opt-item" v-if="runtimeData.sysConfig.close_ga !== true">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
@@ -195,7 +182,8 @@ export default defineComponent({
             runtimeData: runtimeData,
             save: save,
             ndt: 0,
-            ndv: false
+            ndv: false,
+            shareLink: process.env.VUE_APP_MU_SHARE
         }
     },
     methods: {
@@ -225,3 +213,27 @@ export default defineComponent({
     }
 })
 </script>
+<style>
+.ss-switch input:checked ~ div {
+    background: var(--color-main) !important;
+}
+.ga-share {
+    background: var(--color-card-2);
+    border-radius: 7px;
+    align-items: center;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    padding: 10px 20px;
+}
+.ga-share > svg {
+    fill: var(--color-font);
+    margin-right: 10px;
+    width: 20px;
+}
+.ga-share > a {
+    text-decoration: underline;
+    color: var(--color-font-1);
+    font-size: 0.8rem;
+}
+</style>

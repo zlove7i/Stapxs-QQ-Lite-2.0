@@ -1,6 +1,6 @@
 {
   "name": "stapxs-qq-lite",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "private": false,
   "author": "Stapx Steve [林槐]",
   "description": "一个兼容 oicq-http 的非官方网页版 QQ 客户端，使用 Vue 重制的全新版本。",
@@ -15,6 +15,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@bitprojects/umami-logger-typescript": "^1.0.10",
     "@jakejarrett/gtk-theme": "^2.0.1",
     "@types/semver-compare": "^1.0.1",
     "browser-image-compression": "^2.0.0",
@@ -40,7 +41,6 @@
     "v-viewer": "^3.0.11",
     "vue": "^3.2.13",
     "vue-clipboard2": "^0.3.3",
-    "vue-gtag-next": "^1.14.0",
     "vue-i18n": "^9.2.2",
     "vue-infinite-scroll": "^2.0.2",
     "vue3-bcui": "^0.2.2",
