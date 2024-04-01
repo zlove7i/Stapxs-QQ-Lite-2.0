@@ -46,6 +46,10 @@
     "message_list_private": {
         "_name": "get_friend_msg_history"
     },
+    "forward_msg": {
+        "_name": "get_forward_msg",
+        "_basic": "$.data.message[*].data"
+    },
     "message_info": {
         "message_id": "$.message_id",
         "private_id": "$.user_id",

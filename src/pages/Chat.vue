@@ -244,11 +244,11 @@
                 <div>
                     <template v-for="(msg, index) in mergeList"
                         :key="'merge-' + index">
-                        <NoticeBody
+                        <!-- <NoticeBody
                             v-if="isShowTime((mergeList[index - 1] ? mergeList[index - 1].time : undefined), msg.time, index == 0)"
                             :key="'notice-time-' + index"
                             :data="{sub_type: 'time', time: msg.time}">
-                        </NoticeBody>
+                        </NoticeBody> -->
                         <!-- 合并转发消息忽略是不是自己的判定 -->
                         <MsgBody :data="msg" :type="'merge'"></MsgBody>
                     </template>

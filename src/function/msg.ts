@@ -21,7 +21,6 @@ import Umami from '@bitprojects/umami-logger-typescript'
 
 import { buildMsgList, getMsgData, parseMsgList } from '@/utils/msgUtil'
 
-import { Md5 } from 'ts-md5'
 import { reactive, nextTick, markRaw, defineAsyncComponent } from 'vue'
 import { PopInfo, PopType, Logger, LogType } from './base'
 import { Connector, login } from './connect'
@@ -54,7 +53,7 @@ export function parse(str: string) {
                 case 'getGroupMemberList'   : saveGroupMember(msg.data); break
                 case 'getChatHistoryFist'   : saveMsg(msg); break
                 case 'getChatHistory'       : saveMsg(msg, "top"); break
-                case 'getForwardMsg'        : saveForwardMsg(msg.data); break
+                case 'getForwardMsg'        : saveForwardMsg(msg); break
                 case 'sendMsgBack'          : showSendedMsg(msg, echoList); break
                 case 'getRoamingStamp'      : runtimeData.stickerCache = msg.data.reverse(); break
                 case 'getMoreGroupInfo'     : runtimeData.chatInfo.info.group_info = msg.data.data; break
@@ -256,30 +255,20 @@ function saveMsg(msg: any, append = undefined as undefined | string) {
         popInfo.add(PopType.ERR, app.config.globalProperties.$t('pop_chat_load_msg_err', { code: msg.error | msg.retcode }))
     } else {
         let list = getMsgData('message_list', msg, msgPath.message_list)
+        list = getMessageList(list)
         if (list != undefined) {
-            list = parseMsgList(list, msgPath.message_list._type, msgPath.message_value)
-            // 倒序处理
-            if (msgPath.message_list._order === 'reverse') {
-                list.reverse()
-            }
-            // 检查必要字段
-            list.forEach((item: any) => {
-                if (!item.post_type) {
-                    item.post_type = 'message'
-                }
-            })
             // 追加处理
-            if(append != undefined) {
+            if (append != undefined) {
                 // 没有更旧的消息能加载了，禁用允许加载标志
                 if (list.length < 1) {
                     runtimeData.tags.canLoadHistory = false
                     return
                 }
-                if(append == 'top') {
+                if (append == 'top') {
                     list.pop()      // TODO：丢掉一条重复消息，将来可以改成自动判断
                     runtimeData.messageList = list.concat(runtimeData.messageList)
-                } else if(append == 'bottom') {
-                    runtimeData.messageList =  runtimeData.messageList.concat(list)
+                } else if (append == 'bottom') {
+                    runtimeData.messageList = runtimeData.messageList.concat(list)
                 }
             } else {
                 runtimeData.messageList = []
@@ -289,32 +278,35 @@ function saveMsg(msg: any, append = undefined as undefined | string) {
     }
 }
 
-function saveForwardMsg(data: any) {
-    if(data == undefined) {
+function saveForwardMsg(msg: any) {
+    if (msg.error !== null && (msg.error !== undefined || msg.status === 'failed')) {
         popInfo.add(PopType.ERR, app.config.globalProperties.$t('pop_get_forward_fail'))
+    } else {
+        let list = getMsgData('forward_message_list', msg, msgPath.forward_msg)
+        list = getMessageList(list)
+        console.log(list)
+        if (list != undefined) {
+            runtimeData.mergeMessageList = list
+        }
     }
+}
 
-    // gocqhttp 在 message 里，消息为 content，并且直接进行一个 CQCode 的转
-    if(runtimeData.botInfo['go-cqhttp'] === true) {
-        data = data.messages
-    }
-
-    // 格式化不规范消息格式
-    for (let i = 0; i < data.length; i++) {
-        if(!data[i].sender) {
-            data[i].sender = {
-                user_id: data[i].user_id,
-                nickname: data[i].nickname,
-                card: ''
+function getMessageList(list: any[] | undefined) {
+    if (list != undefined) {
+        list = parseMsgList(list, msgPath.message_list._type, msgPath.message_value)
+        // 倒序处理
+        if (msgPath.message_list._order === 'reverse') {
+            list.reverse()
+        }
+        // 检查必要字段
+        list.forEach((item: any) => {
+            if (!item.post_type) {
+                item.post_type = 'message'
             }
-        }
-        if(!data[i].message) {
-            data[i].message = data[i].content
-            data[i] = Util.parseCQ(data[i])
-        }
+        })
+        return list
     }
-    // 处理
-    runtimeData.mergeMessageList = data
+    return undefined
 }
 
 function showSendedMsg(msg: any, echoList: string[]) {
@@ -605,7 +597,7 @@ function newMsg(data: any) {
     if (infoList != undefined) {
         const info = infoList[0]
         const id = info.group_id ?? info.private_id
-        const sender = info.sender
+        // const sender = info.sender
 
         // TODO：有点 BUG 但是暂时不知道为什么
         // 消息回调检查

@@ -297,5 +297,7 @@
   "botinfo_bot_info_name": "后端名称",
   "botinfo_bot_info_version": "后端版本",
   "sw_updated_1": "应用已更新，刷新生效。",
-  "chat_show_msg_error": "解析消息错误"
+  "chat_show_msg_error": "解析消息错误",
+  "botinfo_protocol_version": "OneBot 版本",
+  "botinfo_nt_protocol": "NT 协议版本"
 }

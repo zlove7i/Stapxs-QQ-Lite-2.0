@@ -77,7 +77,7 @@ module.exports = {
                 },
                 
                 linux: {
-                    target: ['AppImage', 'tar.gz', 'pacman'],
+                    target: process.env.NODEJS_ENV === 'github-actions' ? ['AppImage', 'tar.gz'] : 'pacman',
                     maintainer: 'Stapx Steve [林槐]',
                     vendor: 'Stapxs Steve Team',
                     synopsis: '一个兼容 oicq-http 的非官方网页版 QQ 客户端。',

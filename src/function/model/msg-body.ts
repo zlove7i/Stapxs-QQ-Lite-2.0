@@ -10,6 +10,7 @@ import xss from 'xss'
 import app from '@/main'
 
 import { PopInfo, PopType } from '@/function/base'
+import { runtimeData } from '@/function/msg'
 import { Connector } from '@/function/connect'
 import util from '../util'
 
@@ -226,8 +227,8 @@ export class MsgBodyFuns {
 
     static getForwardMsg(id: any) {
         if (id !== 'undefined') {
-            // resid 是 oicq 的， message_id 是 gocqhttp 的
-            Connector.send('get_forward_msg', { 'resid': id, 'message_id': id }, 'getForwardMsg')
+            Connector.send(runtimeData.jsonMap.forward_msg._name
+                , { id: id }, 'getForwardMsg')
         } else {
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_chat_forward_toooomany'))
         }

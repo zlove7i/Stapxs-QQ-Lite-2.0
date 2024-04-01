@@ -31,7 +31,7 @@ export interface RunTimeDataElem {
         classes: any[]
     },
     messageList: any[]
-    mergeMessageList?: [],
+    mergeMessageList?: any[],
     stickerCache?: any[],
     popBoxList: {                   // 通用弹窗
         svg?: string,                   // 弹窗图标

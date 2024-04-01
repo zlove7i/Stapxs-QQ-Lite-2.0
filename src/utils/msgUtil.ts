@@ -114,10 +114,14 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
         case 'json_with_data': {
             // 非扁平化消息体，这儿会取 _type 后半段的 JSON Path 将结果并入 message
             for (let i = 0; i < list.length; i++) {
-                for(let j = 0; j < list[i].message.length; j++) {
-                    const data = getMsgData('message_list_message', list[i].message[j], map.split('|')[1])
+                let msgList = list[i].message
+                if(msgList == undefined) {
+                    msgList = list[i].content
+                }
+                for(let j = 0; j < msgList.length; j++) {
+                    const data = getMsgData('message_list_message', msgList[j], map.split('|')[1])
                     if(data != undefined && data.length == 1) {
-                        list[i].message[j] = Object.assign(list[i].message[j], data[0])
+                        msgList[j] = Object.assign(msgList[j], data[0])
                     }
                 }
             }
@@ -128,7 +132,11 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
         for (let i = 0; i < list.length; i++) {
             Object.entries(valueMap).forEach(([type, values]) => {
                 Object.entries(values).forEach(([key, value]) => {
-                    list[i].message.forEach((item: any) => {
+                    let content = list[i].message
+                    if(content == undefined) {
+                        content = list[i].content
+                    }
+                    content.forEach((item: any) => {
                         if(item.type == type) {
                             item[key] = jp.query(item, value as string)[0]
                         }
@@ -138,6 +146,17 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
                             delete item.data
                         }
                     })
+                    // 其他处理
+                    if(list[i].content != undefined) {
+                        // 把 content 改成 message
+                        list[i].message = content
+                        delete list[i].content
+                        // 添加一个 sender.user_id 为 user_id
+                        list[i].sender = {
+                            user_id: list[i].user_id,
+                            nickname: list[i].nickname
+                        }
+                    }
                 })
             })
         }

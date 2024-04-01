@@ -18,7 +18,6 @@ import option from './option'
 
 import { Rule, Stylesheet, Declaration } from 'css'
 import { Logger, PopInfo, PopType } from './base'
-import { MsgIdInfoElem } from './elements/system'
 import { runtimeData } from './msg'
 import { BaseChatInfoElem } from './elements/information'
 import { Connector } from './connect'
