@@ -38,7 +38,7 @@ async function createWindow() {
         width: mainWindowState.width,
         height: mainWindowState.height,
         icon: path.join(__dirname,'./public/img/icons/icon.png'),
-        frame: noWindow === true ? false : true,
+        frame: noWindow === "true" ? false : true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
