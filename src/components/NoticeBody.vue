@@ -7,7 +7,7 @@
 
 <template>
     <div class="note">
-        <div class="note-recall note-base" v-if="data.sub_type === 'recall'">
+        <div class="note-recall note-base" v-if="data.notice_type.indexOf('recall') >= 0">
             <a>{{ info.name }}</a>
             <span>{{ $t('chat_notice_recall') }}</span>
             <div>
@@ -59,7 +59,7 @@ export default defineComponent({
         }
     },
     mounted() {
-        if (this.info.sub_type === 'recall') {
+        if (this.info.notice_type.indexOf('recall') >= 0) {
             // 补全撤回者信息
             if (runtimeData.chatInfo.show.type === 'group') {
                 const id = this.info.operator_id
@@ -69,7 +69,7 @@ export default defineComponent({
                         return item.user_id === Number(id)
                     })
                     if (back.length === 1) {
-                        this.info.name = back[0].card === '' ? back[0].nickname : back[0].card
+                        this.info.name = back[0].card === '' || back[0].card == null ? back[0].nickname : back[0].card
                     } else {
                         this.info.name = id
                     }

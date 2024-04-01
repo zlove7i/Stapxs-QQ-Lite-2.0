@@ -155,7 +155,7 @@
                         :key="'atFind-' + item.user_id"
                         @click="choiceAt(item.user_id)">
                         <img :src="'https://q1.qlogo.cn/g?b=qq&s=0&nk=' + item.user_id">
-                        <span>{{ item.card != '' ? item.card : item.nickname }}</span>
+                        <span>{{ item.card != '' && item.card != null ? item.card : item.nickname }}</span>
                         <a>{{ item.user_id }}</a>
                     </div>
                     <div v-if="atFindList?.length == 0" class="emp">
@@ -607,7 +607,7 @@ export default defineComponent({
                         console.log(atInfo)
                         if(atInfo != '') {
                             this.atFindList = runtimeData.chatInfo.info.group_members.filter((item) => {
-                                return (item.card != '' && item.card.toLowerCase().indexOf(atInfo) >= 0) || 
+                                return (item.card != '' && item.card != null && item.card.toLowerCase().indexOf(atInfo) >= 0) || 
                                         item.nickname.toLowerCase().indexOf(atInfo) >= 0 ||
                                         atInfo == item.user_id.toString()
                             })
@@ -830,7 +830,7 @@ export default defineComponent({
                 const msgId = msg.message_id
                 // 添加回复内容
                 // PS：这儿还是用旧的方式 …… 因为新的调用不友好。回复消息不会被加入文本行，在消息发送器内有特殊判定。
-                this.addSpecialMsg({ msgObj: { type: 'reply', id: msgId }, addText: false, addTop: true })
+                this.addSpecialMsg({ msgObj: { type: 'reply', id: String(msgId) }, addText: false, addTop: true })
                 // 显示回复指示器
                 this.tags.isReply = true
                 // 聚焦输入框
@@ -1314,8 +1314,11 @@ export default defineComponent({
                                 }
                                 return acc[key]
                             }, result)
-                            delete result.type
-                            newMsg.push(Object.assign(result, item))
+                            let newResult = {} as {[key: string]: any}
+                            newResult.type = item.type
+                            newResult.data = item
+                            delete newResult.data.type
+                            newMsg.push(newResult)
                         })
                         msg = newMsg
                     }

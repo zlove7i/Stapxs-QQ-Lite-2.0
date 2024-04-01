@@ -85,10 +85,11 @@ export function parse(str: string) {
             case 'message'              : newMsg(msg); break
             case 'request'              : addSystemNotice(msg); break
             case 'notice'               : {
+                let typeName = msg.notice_type
+                if(!typeName) typeName = msg.sub_type
                 switch (msg.notice_type) {
                     case 'friend': friendNotice(msg); break
-                }
-                switch (msg.sub_type) {
+                    case 'group_recall':
                     case 'recall': revokeMsg(msg); break
                 }
                 break
@@ -407,14 +408,16 @@ function loadFileBase(echoList: string[], msg: any) {
 }
 
 function saveMemberInfo(msg: any) {
-    const pointInfo = msg.echo.split('_')
-    msg.x = pointInfo[1]
-    msg.y = pointInfo[2]
-    runtimeData.chatInfo.info.now_member_info = msg
+    if (msg.data != undefined) {
+        const pointInfo = msg.echo.split('_')
+        msg.x = pointInfo[1]
+        msg.y = pointInfo[2]
+        runtimeData.chatInfo.info.now_member_info = msg
+    }
 }
 
 function revokeMsg(msg: any) {
-    const chatId = msg.notice_type === 'group' ? msg.group_id : msg.user_id
+    const chatId = msg.notice_type.indexOf('group') >= 0 ? msg.group_id : msg.user_id
     const msgId = msg.message_id
     // 当前窗口
     if (Number(chatId) === Number(runtimeData.chatInfo.show.id)) {
