@@ -12,7 +12,8 @@ import app from '@/main'
 import { PopInfo, PopType } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { Connector } from '@/function/connect'
-import util from '../util'
+import { openLink } from '@/utils/appUtil'
+import { getDeviceType } from '@/utils/systemUtil'
 
 const popInfo = new PopInfo()
 
@@ -180,7 +181,7 @@ export class MsgBodyFuns {
         if(json.app == 'com.tencent.map') {
             info.title = json.meta['Location.Search'].name
             append.urlOpenType = '_self'
-            const deviceType = util.getDeviceType()
+            const deviceType = getDeviceType()
             if(deviceType == 'Android') {
                 info.url = 'geo:' + json.meta['Location.Search'].lat + ',' + json.meta['Location.Search'].lng
             } else if(deviceType == 'iOS' || deviceType == 'MacOS') {
@@ -209,7 +210,7 @@ export class MsgBodyFuns {
                     window.open(sender.dataset.url, '_self')
                 } else {
                     // 默认都以 _blank 打开
-                    util.openLink(sender.dataset.url)
+                    openLink(sender.dataset.url)
                 }
                 return
             }

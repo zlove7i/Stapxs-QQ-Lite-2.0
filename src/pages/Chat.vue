@@ -384,7 +384,6 @@
 import app from '@/main'
 import SendUtil from '@/function/sender'
 import Option from '@/function/option'
-import Util from '@/function/util'
 import Info from '@/pages/Info.vue'
 import MsgBody from '@/components/MsgBody.vue'
 import NoticeBody from '@/components/NoticeBody.vue'
@@ -393,7 +392,10 @@ import imageCompression from 'browser-image-compression'
 import jp from 'jsonpath'
 
 import { defineComponent, markRaw } from 'vue'
-import { getTrueLang, loadHistory as loadHistoryFirst, getMsgRawTxt } from '@/function/util'
+import { loadHistory as loadHistoryFirst } from '@/utils/appUtil'
+import { getTrueLang } from '@/utils/systemUtil'
+import { getMsgRawTxt, parseJSONCQCode } from '@/utils/msgUtil'
+import { scrollToMsg } from '@/utils/appUtil'
 import { Logger, LogType, PopInfo, PopType } from '@/function/base'
 import { Connector, login as loginInfo } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
@@ -559,7 +561,7 @@ export default defineComponent({
         },
         scrollToMsg (message_id: string) {
             // oicq1：seq 字段名消息格式兼容
-            if (!Util.scrollToMsg(message_id, true)) {
+            if (!scrollToMsg(message_id, true)) {
                 new PopInfo().add(PopType.INFO, this.$t('pop_chat_msg_not_load') + ' ( ' + message_id.split('-')[1] + ' ) ')
             }
         },
@@ -911,7 +913,7 @@ export default defineComponent({
                             fun: () => {
                                 let msgSend = msg.message
                                 if(runtimeData.tags.msgType == BotMsgType.CQCode) {
-                                    msgSend = Util.parseJSONCQCode(msgSend)
+                                    msgSend = parseJSONCQCode(msgSend)
                                 }
                                 switch (type) {
                                     case 'group': Connector.send('send_group_msg', { 'group_id': id, 'message': msgSend }, 'sendMsgBack_forward'); break
@@ -934,7 +936,7 @@ export default defineComponent({
             if (msg !== null) {
                 // 如果消息体没有简述消息的话 ……
                 if(!msg.raw_message) {
-                    msg.raw_message = Util.getMsgRawTxt(msg.message)
+                    msg.raw_message = getMsgRawTxt(msg.message)
                 }
                 const popInfo = new PopInfo()
                 app.config.globalProperties.$copyText(msg.raw_message).then(() => {

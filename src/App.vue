@@ -231,7 +231,8 @@ import { Connector, login as loginInfo } from '@/function/connect'
 import { Logger, popList, PopInfo } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
-import { loadHistory, getTrueLang, gitmojiToEmoji, openLink } from '@/function/util'
+import { getTrueLang, gitmojiToEmoji } from '@/utils/systemUtil'
+import { openLink, loadHistory } from './utils/appUtil'
 
 import Options from '@/pages/Options.vue'
 import Friends from '@/pages/Friends.vue'
@@ -429,6 +430,12 @@ export default defineComponent({
     mounted () {
         const logger = new Logger()
         window.moYu = () => { return 'undefined' }
+        // MacOS：初始化菜单
+        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+        const reader = electron ? electron.ipcRenderer : null
+        if (reader) {
+            reader.send('sys:updateMenu')
+        }
         // 页面加载完成后
         window.onload = () => {
             app.config.globalProperties.$viewer = this.viewerBody

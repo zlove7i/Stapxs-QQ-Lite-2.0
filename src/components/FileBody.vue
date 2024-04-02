@@ -50,7 +50,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import { getTrueLang, getSizeFromBytes, htmlDecodeByRegExp } from '@/function/util'
+import { getTrueLang, htmlDecodeByRegExp, getSizeFromBytes } from '@/utils/systemUtil'
 import { Connector } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 

@@ -17,7 +17,8 @@ import { i18n } from '@/main'
 import { markRaw, defineAsyncComponent } from 'vue'
 import { Logger, LogType, PopInfo, PopType } from './base'
 import { runtimeData } from './msg'
-import { initUITest, getTrueLang, loadSystemThemeColor, loadWinColor, updateWinColor } from './util'
+import { initUITest, loadSystemThemeColor, loadWinColor, updateWinColor } from '@/utils/appUtil'
+import { getTrueLang } from '@/utils/systemUtil'
 
 let cacheConfigs: { [key: string]: any }
 

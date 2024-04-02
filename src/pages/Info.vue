@@ -164,7 +164,7 @@ import FileBody from '@/components/FileBody.vue'
 import OptInfo from './options/OptInfo.vue'
 
 import { defineComponent, toRaw } from 'vue'
-import { getTrueLang } from '@/function/util'
+import { getTrueLang } from '@/utils/systemUtil'
 import { runtimeData } from '@/function/msg'
 import { UserFriendElem, UserGroupElem } from '@/function/elements/information'
 

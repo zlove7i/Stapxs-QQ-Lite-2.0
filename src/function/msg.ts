@@ -13,14 +13,14 @@ import qed from '@/assets/qed.txt'
 
 import app from '@/main'
 import Option from './option'
-import Util from './util'
 import xss from 'xss'
 import pinyin from 'pinyin'
 
 import Umami from '@bitprojects/umami-logger-typescript'
 
-import { buildMsgList, getMsgData, parseMsgList } from '@/utils/msgUtil'
-
+import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/utils/msgUtil'
+import { htmlDecodeByRegExp, randomNum } from '@/utils/systemUtil'
+import { reloadUsers, downloadFile } from '@/utils/appUtil'
 import { reactive, nextTick, markRaw, defineAsyncComponent } from 'vue'
 import { PopInfo, PopType, Logger, LogType } from './base'
 import { Connector, login } from './connect'
@@ -162,7 +162,7 @@ function saveLoginInfo(msg: { [key: string]: any }) {
             'getMoreLoginInfo'
         )
         // 加载列表消息
-        Util.reloadUsers()
+        reloadUsers()
     }
 }
 
@@ -490,7 +490,7 @@ function downloadFileChat(msg: any) {
             runtimeData.messageList[index].message[indexMsg].
                     downloadingPercentage = Math.floor(event.loaded / event.total * 100)
         }
-        Util.downloadFile(url, msg.echo.substring(msg.echo.lastIndexOf('_') + 1, msg.echo.length), onProcess)
+        downloadFile(url, msg.echo.substring(msg.echo.lastIndexOf('_') + 1, msg.echo.length), onProcess)
     }
 }
 
@@ -504,7 +504,7 @@ function downloadGroupFile(msg: any) {
     let subFileIndex = -1
     runtimeData.chatInfo.info.group_files.file_list.forEach((item: any, index: number) => {
         if (item.id === id) {
-            fileName = Util.htmlDecodeByRegExp(item.name)
+            fileName = htmlDecodeByRegExp(item.name)
             fileIndex = index
         }
     })
@@ -512,7 +512,7 @@ function downloadGroupFile(msg: any) {
     if (info[2] !== undefined) {
         runtimeData.chatInfo.info.group_files.file_list[fileIndex].sub_list.forEach((item: any, index:number) => {
             if (item.id === info[2]) {
-                fileName = Util.htmlDecodeByRegExp(item.name)
+                fileName = htmlDecodeByRegExp(item.name)
                 subFileIndex = index
             }
         })
@@ -537,7 +537,7 @@ function downloadGroupFile(msg: any) {
     }
 
     // 下载文件
-    Util.downloadFile(msg.data.url, fileName, onProcess)
+    downloadFile(msg.data.url, fileName, onProcess)
 }
 
 function getVideoUrl(msg: any) {
@@ -613,7 +613,7 @@ function newMsg(data: any) {
             // 保存消息
             saveMsg(buildMsgList([data]), 'bottom')
             // 抽个签
-            const num = Util.randomNum(0, 10000)
+            const num = randomNum(0, 10000)
             if (num >= 4500 && num <= 5500) {
                 new Logger().add(LogType.INFO, num.toString() + '，这只是个神秘的数字...')
             }
@@ -738,7 +738,7 @@ function newMsg(data: any) {
 
 function sendNotice(msg: any) {
     if (Option.get('close_notice') !== true) {
-        let raw = Util.getMsgRawTxt(msg.message)
+        let raw = getMsgRawTxt(msg.message)
         raw = raw === '' ? msg.raw_message : raw
         // 检查消息内是否有群名
         if(msg.group_name === undefined) {
@@ -892,7 +892,7 @@ function updateSysInfo(type: string) {
     Connector.send('get_system_msg', {}, 'getSystemMsg')
     switch(type) {
         case 'setFriendAdd': 
-            Util.reloadUsers(); break
+            reloadUsers(); break
     }
 }
 
@@ -914,7 +914,7 @@ function addSystemNotice(msg: any) {
  */
 function friendNotice(msg: any) {
     // 重新加载联系人列表
-    Util.reloadUsers();
+    reloadUsers();
     switch(msg.sub_type) {
         case 'increase': {
             // 添加系统通知

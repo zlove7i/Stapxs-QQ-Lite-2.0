@@ -85,7 +85,7 @@ import { nextTick } from 'vue'
 import { Connector } from '@/function/connect'
 import { defineComponent, markRaw } from 'vue'
 import { runtimeData, appendMsg } from '@/function/msg'
-import { getTrueLang } from '@/function/util'
+import { getTrueLang } from '@/utils/systemUtil'
 import { MsgItemElem, SQCodeElem, UserFriendElem, UserGroupElem } from '@/function/elements/information'
 import { Logger, LogType, PopInfo, popList, PopType } from '@/function/base'
 

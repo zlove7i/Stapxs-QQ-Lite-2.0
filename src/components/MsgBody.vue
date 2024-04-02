@@ -122,7 +122,6 @@
   
 <script lang="ts">
 
-import Util from '@/function/util'
 import Option from '@/function/option'
 import CardMessage from './msg-component/CardMessage.vue'
 import app from '@/main'
@@ -134,8 +133,9 @@ import { Connector } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { Logger, PopInfo, PopType } from '@/function/base'
 import { StringifyOptions } from 'querystring'
-import { getMsgRawTxt } from '@/function/util'
-import { getFace } from '@/utils/msgUtil'
+import { getFace, getMsgRawTxt } from '@/utils/msgUtil'
+import { openLink, downloadFile } from '@/utils/appUtil'
+import { getSizeFromBytes } from '@/utils/systemUtil'
 
 export default defineComponent({
     name: 'MsgBody',
@@ -144,7 +144,7 @@ export default defineComponent({
     data () {
         return {
             getFace: getFace,
-            getSizeFromBytes: Util.getSizeFromBytes,
+            getSizeFromBytes: getSizeFromBytes,
             isMe: false,
             isDebugMsg: Option.get('debug_msg'),
             linkViewStyle: '',
@@ -161,7 +161,7 @@ export default defineComponent({
          * @param message 消息对象
          */
         getMsgRawTxt (message: any) {
-            return Util.getMsgRawTxt(message)
+            return getMsgRawTxt(message)
         },
 
         /**
@@ -454,7 +454,7 @@ export default defineComponent({
             }
             if(data.url) {
                 // 消息中有文件链接的话就不用获取了 ……
-                Util.downloadFile(data.url, data.name, onProcess)
+                downloadFile(data.url, data.name, onProcess)
             } else {
                 // 获取下载链接
                 Connector.send('get_file_url', {
@@ -489,7 +489,7 @@ export default defineComponent({
             if(target.dataset.link) {
                 // 点击了链接
                 const link = target.dataset.link
-                Util.openLink(link)
+                openLink(link)
             }
         },
 

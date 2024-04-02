@@ -112,7 +112,7 @@ import { BaseChatInfoElem, UserFriendElem } from '@/function/elements/informatio
 import { UserGroupElem } from '@/function/elements/information'
 
 import { runtimeData } from '@/function/msg'
-import { reloadUsers } from '@/function/util'
+import { reloadUsers } from '@/utils/appUtil'
 
 export default defineComponent({
     name: 'ViewFriends',

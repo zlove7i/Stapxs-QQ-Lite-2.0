@@ -26,7 +26,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { runtimeData } from '@/function/msg'
-import { getTrueLang } from '@/function/util'
+import { getTrueLang } from '@/utils/systemUtil'
 
 export default defineComponent({
     name: 'NoticeBody',
