@@ -43,7 +43,7 @@
                             d="M464 64C490.5 64 512 85.49 512 112C512 127.1 504.9 141.3 492.8 150.4L275.2 313.6C263.8 322.1 248.2 322.1 236.8 313.6L19.2 150.4C7.113 141.3 0 127.1 0 112C0 85.49 21.49 64 48 64H464zM217.6 339.2C240.4 356.3 271.6 356.3 294.4 339.2L512 176V384C512 419.3 483.3 448 448 448H64C28.65 448 0 419.3 0 384V176L217.6 339.2z" />
                     </svg>
                 </li>
-                <li @click="changeTab('列表', 'Friends', false)">
+                <li id="bar-friends" @click="changeTab('列表', 'Friends', false)">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                         <path
                             d="M224 256c70.7 0 128-57.31 128-128s-57.3-128-128-128C153.3 0 96 57.31 96 128S153.3 256 224 256zM274.7 304H173.3C77.61 304 0 381.6 0 477.3c0 19.14 15.52 34.67 34.66 34.67h378.7C432.5 512 448 496.5 448 477.3C448 381.6 370.4 304 274.7 304z" />
@@ -166,7 +166,7 @@
         </TransitionGroup>
         <Transition>
             <div class="pop-box" v-if="runtimeData.popBoxList.length > 0">
-                <div :class="'pop-box-body ss-card' + (runtimeData.popBoxList[0].full ? ' full' : '')"
+                <div :class="'pop-box-body ss-card' + (runtimeData.popBoxList[0].full ? ' full' : '') + (get('option_view_no_window') == true ? '' : ' window')"
                     :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px))'">
                     <header v-show="runtimeData.popBoxList[0].title != undefined">
                         <div
@@ -232,7 +232,7 @@ import { Logger, popList, PopInfo } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import { getTrueLang, gitmojiToEmoji } from '@/utils/systemUtil'
-import { openLink, loadHistory } from './utils/appUtil'
+import { openLink, loadHistory, createMenu, createIpc } from './utils/appUtil'
 
 import Options from '@/pages/Options.vue'
 import Friends from '@/pages/Friends.vue'
@@ -254,6 +254,7 @@ export default defineComponent({
             Connector: Connector,
             defineAsyncComponent: defineAsyncComponent,
             save: Option.runASWEvent,
+            get: Option.get,
             popInfo: new PopInfo(),
             appMsgs: popList,
             loadHistory: loadHistory,
@@ -430,24 +431,26 @@ export default defineComponent({
     mounted () {
         const logger = new Logger()
         window.moYu = () => { return 'undefined' }
-        // MacOS：初始化菜单
-        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-        const reader = electron ? electron.ipcRenderer : null
-        if (reader) {
-            reader.send('sys:updateMenu')
-        }
         // 页面加载完成后
         window.onload = () => {
+            createMenu()
+            createIpc()
+            // 加载开发者相关
+            if (process.env.NODE_ENV == 'development') {
+                document.title = 'Stapxs QQ Lite (Dev)'
+                // 布局检查工具
+                Spacing.start()
+            }
             app.config.globalProperties.$viewer = this.viewerBody
             // 初始化波浪动画
             runtimeData.tags.loginWaveTimer = this.waveAnimation(document.getElementById('login-wave'))
             // 加载设置项
             runtimeData.sysConfig = Option.load()
             // PS：重新再应用部分需要加载完成后才能应用的设置
-            Option.runAS('opt_dark', Option.get('opt_dark'))
-            Option.runAS('opt_auto_dark', Option.get('opt_auto_dark'))
-            Option.runAS('theme_color', Option.get('theme_color'))
-            Option.runAS('opt_auto_win_color', Option.get('opt_auto_win_color'))
+            Option.run('opt_dark', Option.get('opt_dark'))
+            Option.run('opt_auto_dark', Option.get('opt_auto_dark'))
+            Option.run('theme_color', Option.get('theme_color'))
+            Option.run('opt_auto_win_color', Option.get('opt_auto_win_color'))
             if(Option.get('opt_no_window') == true) {
                 const app = document.getElementById('base-app')
                 if(app) app.classList.add('withBar')
@@ -467,12 +470,6 @@ export default defineComponent({
             // 初始化完成
             logger.debug(this.$t('log_welcome'))
             logger.debug(this.$t('log_runtime') + ': ' + process.env.NODE_ENV)
-            // 加载开发者相关
-            if (process.env.NODE_ENV == 'development') {
-                document.title = 'Stapxs QQ Lite (Dev)'
-                // 布局检查工具
-                Spacing.start()
-            }
             // UM：加载 Umami 统计功能
             if (!Option.get('close_ga') && process.env.NODE_ENV == 'production') {
                 Umami.initialize({

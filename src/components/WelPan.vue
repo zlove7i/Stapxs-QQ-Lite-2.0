@@ -64,7 +64,8 @@ export default defineComponent({
             const sender = event.target as HTMLInputElement
             // UM：上传语言选择
             Umami.trackEvent('use_language', { name: sender.value })
-
+            // 刷新菜单
+            // TODO
         },
         setPage(name: string) {
             this.show = name

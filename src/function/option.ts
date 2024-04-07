@@ -45,16 +45,7 @@ const configFunction: { [key: string]: (value: any) => void } = {
     initial_scale: changeInitialScale,
     msg_type: setMsgType,
     opt_auto_gtk: updateGTKColor,
-    opt_auto_win_color: updateWinColorOpt,
-    opt_no_window: changeNoWindow
-}
-
-function changeNoWindow(value: boolean) {
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if(reader) {
-        reader.send('opt:saveNoWindow', value)
-    }
+    opt_auto_win_color: updateWinColorOpt
 }
 
 function updateWinColorOpt(value: boolean) {
@@ -278,34 +269,54 @@ function changeChatView(name: string | undefined) {
  * @returns 设置项集合
  */
 export function load(): { [key: string]: any } {
-    const options: { [key: string]: any } = {}
-    const str = localStorage.getItem('options')
-    if (str != null) {
-        const list = str.split('&')
-        for (let i = 0; i <= list.length; i++) {
-            if (list[i] !== undefined) {
-                const opt: string[] = list[i].split(':')
-                if (opt.length === 2) {
-                    if (opt[1] === 'true' || opt[1] === 'false') {
-                        // 特殊处理被字符串化的布尔值
-                        options[opt[0]] = (opt[1] === 'true')
-                    } else if(opt[0] == 'top_info') {
-                        // 特殊处理 top_info
-                        try {
-                            options[opt[0]] = JSON.parse(decodeURIComponent(opt[1]))
-                        } catch (e) {
-                            // 无法解析的数据，初始化为空对象
-                            options[opt[0]] = {}
-                        }
-                    } else {
-                        options[opt[0]] = decodeURIComponent(opt[1])
+    let data = {} as { [key: string]: any }
+
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if (reader) {
+        data = reader.sendSync('opt:getAll')
+    } else {
+        const str = localStorage.getItem('options')
+        if (str != null) {
+            const list = str.split('&')
+            for (let i = 0; i <= list.length; i++) {
+                if (list[i] !== undefined) {
+                    const opt: string[] = list[i].split(':')
+                    if (opt.length === 2) {
+                        data[opt[0]] = opt[1]
                     }
-                    // 执行设置项操作
-                    run(opt[0], opt[1])
                 }
             }
         }
     }
+    return loadOptData(data)
+}
+
+function loadOptData(data: { [key: string]: any }) {
+    console.log(data)
+    const options: { [key: string]: any } = {}
+    Object.keys(data).forEach(function (key) {
+        const value = data[key]
+        if (value === 'true' || value === 'false') {
+            options[key] = value === 'true'
+        } else if (value === 'null') {
+            options[key] = null
+        } else if (key == 'top_info') {
+            // 特殊处理 top_info
+            try {
+                options[key] = JSON.parse(decodeURIComponent(value))
+            } catch (e) {
+                // 无法解析的数据，初始化为空对象
+                options[key] = {}
+            }
+        } else if(typeof value == 'string') {
+            options[key] = decodeURIComponent(value)
+        } else {
+            options[key] = value
+        }
+        // 执行设置项操作
+        run(key, options[key])
+    });
     // 初始化不存在的需要进行初始化的值
     Object.keys(optDefault).forEach((key) => {
         if (options[key] === undefined) {
@@ -351,16 +362,22 @@ export function get(name: string): any {
  * @returns 设置项值（如果没有则为 null）
  */
 export function getRaw(name: string) {
-    // 解析拆分 cookie 并执行各个设置项的初始化方法
-    const str = localStorage.getItem('options')
-    if (str != null) {
-        const list = str.split('&')
-        for (let i = 0; i <= list.length; i++) {
-            if (list[i] !== undefined) {
-                const opt: string[] = list[i].split(':')
-                if (opt.length === 2) {
-                    if(name == opt[0]) {
-                        return opt[1]
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if (reader) {
+        return reader.sendSync('opt:get', name)
+    } else {
+        // 解析拆分 cookie 并执行各个设置项的初始化方法
+        const str = localStorage.getItem('options')
+        if (str != null) {
+            const list = str.split('&')
+            for (let i = 0; i <= list.length; i++) {
+                if (list[i] !== undefined) {
+                    const opt: string[] = list[i].split(':')
+                    if (opt.length === 2) {
+                        if (name == opt[0]) {
+                            return opt[1]
+                        }
                     }
                 }
             }
@@ -379,7 +396,7 @@ export function save(name: string, value: any) {
 }
 export function saveAll(config = {} as {[key: string]: any}) {
     if(Object.keys(config).length == 0) {
-        config = cacheConfigs
+        Object.assign(config, cacheConfigs)
     }
     let str = ''
     Object.keys(config).forEach(key => {
@@ -389,6 +406,18 @@ export function saveAll(config = {} as {[key: string]: any}) {
     })
     str = str.substring(0, str.length - 1)
     localStorage.setItem('options', str)
+
+    // electron：将配置保存
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if(reader) {
+        const saveConfig = config
+        Object.keys(config).forEach(key => {
+            const isObject = typeof config[key] == 'object'
+            saveConfig[key] = isObject ? JSON.stringify(config[key]) : config[key]
+        })
+        reader.send('opt:saveAll', saveConfig)
+    }
 }
 
 /**
@@ -458,6 +487,7 @@ export default {
     get,
     load,
     save,
+    run,
     runAS,
     runASWEvent,
     remove

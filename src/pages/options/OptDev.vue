@@ -373,8 +373,13 @@ export default defineComponent({
                                     .replace(/^ +/, '')
                                     .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
                             })
+                            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+                            const reader = electron ? electron.ipcRenderer : null
+                            if (reader) {
+                                reader.sendSync('opt:clearAll')
+                            }
                             location.reload()
-                         }
+                        }
                     },
                     {
                         text: app.config.globalProperties.$t('btn_no'),

@@ -2,10 +2,11 @@
 
 import Store from 'electron-store'
 import windowStateKeeper from 'electron-window-state'
-import regIpcListener from './function/electron/ipc'
+import { regIpcListener } from './function/electron/ipc'
 import path from 'path'
+import { version as appVersion } from '../package.json'
 
-import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import installExtension from 'electron-devtools-installer'
 
 import { Menu, session } from 'electron'
 import { app, protocol, BrowserWindow } from 'electron'
@@ -20,10 +21,20 @@ protocol.registerSchemesAsPrivileged([
 export let win = undefined as BrowserWindow | undefined
 
 async function createWindow() {
-    console.log('开始创建窗口 ……')
-    // 窗口创建前事务
+    console.log('')
+    console.log('███████╗████████╗ █████╗ ██████╗ ██╗  ██╗')
+    console.log('██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚██╗██╔╝')
+    console.log('███████╗   ██║   ███████║██████╔╝ ╚███╔╝ ')
+    console.log('╚════██║   ██║   ██╔══██║██╔═══╝  ██╔██╗ ')
+    console.log('███████║   ██║   ██║  ██║██║     ██╔╝ ██╗')
+    console.log('╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝')
+    console.log('===========================================')
+    console.log('Welcome to Stapxs QQ Lite, current version: ' + appVersion)
+    console.log('The background language component will be initialized after the frontend is loaded.')
+    
+    console.log('Platform：' + process.platform)
+    console.log('Start creating main window ……')
     Menu.setApplicationMenu(null)
-    regIpcListener()
     // 创建窗口
     const mainWindowState = windowStateKeeper({
         defaultWidth: 1200,
@@ -31,7 +42,6 @@ async function createWindow() {
     })
     const store = new Store()
     const noWindow = await store.get('opt_no_window')
-    console.log('窗口框架状态：' + noWindow)
     win = new BrowserWindow({
         x: mainWindowState.x,
         y: mainWindowState.y,
@@ -46,7 +56,9 @@ async function createWindow() {
     })
     win.once('focus', () => {if(win)win.flashFrame(false)})
     mainWindowState.manage(win)     // 窗口状态管理器
-    console.log('窗口创建完成')
+    console.log('Create main window to complete.')
+    // 注册 IPC 事务
+    regIpcListener()
     // 加载应用
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
@@ -55,7 +67,6 @@ async function createWindow() {
         createProtocol('app')
         win.loadURL('app://./index.html')
     }
-    console.log('应用加载完成')
 
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         if(details.responseHeaders) {
@@ -68,9 +79,9 @@ async function createWindow() {
 }
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
+    // if (process.platform !== 'darwin') {
         app.quit()
-    }
+    // }
 })
 
 app.on('activate', () => {
@@ -80,12 +91,7 @@ app.on('activate', () => {
 app.on('ready', async () => {
     if (isDevelopment && !process.env.IS_TEST) {
         try {
-            await installExtension(VUEJS3_DEVTOOLS)
-            // 这是个谷歌分析调试工具，好像用不了？？
-            // await installExtension({
-            //     id: 'ilnpmccnfdjdjjikgkefkcegefikecdc',
-            //     electron: '>=1.2.1'
-            // })
+            await installExtension('nhdogjmejiglipccpnnnanhbledajbpd')
         } catch (e: any) {
             console.error('Vue Devtools failed to install:', e.toString())
         }

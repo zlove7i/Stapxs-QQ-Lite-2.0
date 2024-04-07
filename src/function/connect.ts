@@ -14,6 +14,7 @@ import { LogType, Logger, PopType, PopInfo  } from './base'
 import { parse, runtimeData, resetRimtime } from './msg'
 
 import { BotActionElem, LoginCacheElem } from './elements/system'
+import { updateMenu } from "@/utils/appUtil"
 
 const logger = new Logger()
 const popInfo = new PopInfo()
@@ -82,6 +83,11 @@ export class Connector {
         }
         websocket.onclose = (e) => {
             websocket = undefined
+            updateMenu({
+                id: 'account',
+                action: 'visible',
+                value: false
+            })
 
             switch(e.code) {
                 case 1000: break;   // 正常关闭
@@ -122,6 +128,7 @@ export class Connector {
      * 正常断开 Websocket 连接
      */
     static close() {
+        popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_log_con_close'))
         if(websocket) websocket.close(1000)
     }
 

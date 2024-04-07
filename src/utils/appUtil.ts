@@ -1,11 +1,11 @@
 import app from '@/main'
 import zh from '@/assets/l10n/zh-CN.json'
 import FileDownloader from 'js-file-downloader'
-import option from '@/function/option'
+import option, { remove } from '@/function/option'
 
 import { Rule, Stylesheet, Declaration } from 'css'
 import { PopInfo, PopType } from '@/function/base'
-import { Connector } from '@/function/connect'
+import { Connector, login } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import { hslToRgb, rgbToHsl } from '@/utils/systemUtil'
@@ -50,13 +50,17 @@ export function openLink(url: string) {
     // 判断是不是 Electron，是的话打开内嵌 iframe
     if(runtimeData.tags.isElectron) {
         const popInfo = {
-            html: `<iframe src="${url}" style="width: calc(100% + 80px);border: none;margin: -40px -40px -20px -40px;height: calc(100vh - 145px);border-radius: 7px;"></iframe>`,
+            html: `<iframe src="${url}" style="width: calc(100% + 80px);border: none;margin: -40px -40px -20px -40px;border-radius: 7px;"></iframe>`,
             full: true,
             button: [
                 {
                     text: app.config.globalProperties.$t('btn_open'),
                     fun: () => {
-                        window.open(url)
+                        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+                        const shell = electron ? electron.shell : null
+                        if (shell) {
+                            shell.openExternal(url)
+                        }
                         runtimeData.popBoxList.shift()
                     }
                 },
@@ -67,6 +71,7 @@ export function openLink(url: string) {
                 }
             ]
         }
+        runtimeData.popBoxList = []
         runtimeData.popBoxList.push(popInfo)
     } else {
         window.open(url)
@@ -110,11 +115,13 @@ export function loadHistoryMessage(id: number, type: string, count = 20, echo = 
  * 重新加载用户列表
  */
 export function reloadUsers() {
-    runtimeData.userList = []
-    Connector.send('get_friend_list', {}, 'getFriendList')
-    Connector.send('get_group_list', {}, 'getGroupList')
-    Connector.send('get_system_msg', {}, 'getSystemMsg')
-    Connector.send('get_class_info', {}, "getClassInfo")
+    if (login.status) {
+        runtimeData.userList = []
+        Connector.send('get_friend_list', {}, 'getFriendList')
+        Connector.send('get_group_list', {}, 'getGroupList')
+        Connector.send('get_system_msg', {}, 'getSystemMsg')
+        Connector.send('get_class_info', {}, "getClassInfo")
+    }
 }
 
 /**
@@ -306,5 +313,90 @@ export function updateWinColor(info: any) {
     } else {
         runtimeData.sysConfig['opt_auto_win_color'] = false
         new PopInfo().add(PopType.ERR, app.config.globalProperties.$t('option_view_auto_win_color_tip_1') + info.err)
+    }
+}
+
+export function createMenu() {
+    const { $t } = app.config.globalProperties
+    // MacOS：初始化菜单
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if (reader) {
+        // 初始化菜单
+        const menuTitles = {} as { [key: string]: string }
+        menuTitles.success = $t('load_success', { name: $t('name')})
+
+        menuTitles.title = $t('name')
+        menuTitles.about = $t('menu_about') + ' ' + $t('name')
+        menuTitles.update = $t('menu_update')
+        menuTitles.hide = $t('menu_hide') + ' ' + $t('name')
+        menuTitles.hideOthers = $t('menu_hide_others')
+        menuTitles.unhide = $t('menu_unhide')
+        menuTitles.quit = $t('menu_quit') + ' ' + $t('name')
+
+        menuTitles.edit = $t('menu_edit')
+        menuTitles.undo = $t('menu_undo')
+        menuTitles.redo = $t('menu_redo')
+        menuTitles.cut = $t('menu_cut')
+        menuTitles.copy = $t('menu_copy')
+        menuTitles.paste = $t('menu_paste')
+        menuTitles.selectAll = $t('menu_select_all')
+
+        menuTitles.account = $t('menu_account')
+        menuTitles.userList = $t('menu_user_list', { count: runtimeData.userList.length })
+        menuTitles.flushUser = $t('menu_flush_user')
+        menuTitles.logout = $t('menu_logout')
+
+        menuTitles.help = $t('menu_help')
+        menuTitles.doc = $t('menu_doc')
+        menuTitles.feedback = $t('menu_feedback')
+        menuTitles.license = $t('menu_license')
+
+        reader.send('sys:createMenu', menuTitles)
+    }
+}
+
+export function updateMenu(config: {id: string, action: string, value: any}) {
+    // MacOS：更新菜单
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if (reader) {
+        reader.send('sys:updateMenu', config)
+    }
+}
+
+export function createIpc() {
+    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+    const reader = electron ? electron.ipcRenderer : null
+    if (reader) {
+        reader.on('bot:flushUser', () => {
+            reloadUsers()
+            popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_reload_user_success'))
+        })
+        reader.on('bot:logout', () => {
+            remove('auto_connect')
+            Connector.close()
+        })
+        reader.on('app:about', () => {
+            const logoCard = document.getElementById('logo-card')
+            if (logoCard) {
+                const div = document.createElement('div')
+                div.innerHTML = logoCard.innerHTML
+                const logoGo = div.getElementsByClassName('ss-button')[0]
+                if (logoGo) logoGo.remove()
+                const popInfo = {
+                    title: app.config.globalProperties.$t('menu_about'),
+                    html: '<div class="ss-card logo-card" style="margin: 0 -40px -20px -40px;box-shadow: none !important;">' +
+                        div.innerHTML + '</div>'
+                }
+                runtimeData.popBoxList.push(popInfo)
+            }
+        })
+        reader.on('app:changeTab', (event, name) => {
+            document.getElementById('bar-' + name.toLowerCase())?.click()
+        })
+        reader.on('app:openLink', (event, link) => {
+            openLink(link)
+        })
     }
 }

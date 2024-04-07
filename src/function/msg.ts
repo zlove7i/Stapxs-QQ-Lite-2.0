@@ -20,7 +20,7 @@ import Umami from '@bitprojects/umami-logger-typescript'
 
 import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/utils/msgUtil'
 import { htmlDecodeByRegExp, randomNum } from '@/utils/systemUtil'
-import { reloadUsers, downloadFile } from '@/utils/appUtil'
+import { reloadUsers, downloadFile, updateMenu } from '@/utils/appUtil'
 import { reactive, nextTick, markRaw, defineAsyncComponent } from 'vue'
 import { PopInfo, PopType, Logger, LogType } from './base'
 import { Connector, login } from './connect'
@@ -148,6 +148,9 @@ function saveLoginInfo(msg: { [key: string]: any }) {
         // 完成登陆初始化
         runtimeData.loginInfo = data
         login.status = true
+        // 显示账户菜单
+        updateMenu({ id: 'account', action: 'visible', value: true })
+        updateMenu({ id: 'userName', action: 'label', value: data.nickname })
         // 结束登录页面的水波动画
         clearInterval(runtimeData.tags.loginWaveTimer)
         // 跳转标签卡
@@ -210,6 +213,12 @@ function saveUser(msg: { [key: string]: any }, type: string) {
                 })
             }
         }
+        // 更新菜单
+        updateMenu({
+            id: 'userList',
+            action: 'label',
+            value: app.config.globalProperties.$t('menu_user_list', { count: runtimeData.userList.length })
+        })
     }
 }
 
