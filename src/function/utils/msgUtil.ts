@@ -66,11 +66,11 @@ function replaceJPValue(jpStr: string) {
  */
 export function getFace(id: number) {
     // eslint-disable-next-line
-    try { return require('./../assets/img/qq-face/gif/s' + id + '.gif') } catch {}
+    try { return require('./../../assets/img/qq-face/gif/s' + id + '.gif') } catch {}
     // eslint-disable-next-line
-    try { return require('./../assets/img/qq-face/gif/s' + id + '.png') } catch {}
+    try { return require('./../../assets/img/qq-face/gif/s' + id + '.png') } catch {}
     // eslint-disable-next-line
-    try { return require('./../assets/img/qq-face/static/s' + id + '.png') } catch {}
+    try { return require('./../../assets/img/qq-face/static/s' + id + '.png') } catch {}
     return false
 }
 

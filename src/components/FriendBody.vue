@@ -38,7 +38,7 @@
   
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { getTrueLang } from '@/utils/systemUtil'
+import { getTrueLang } from '@/function/utils/systemUtil'
 
 export default defineComponent({
     name: 'FriendBody',

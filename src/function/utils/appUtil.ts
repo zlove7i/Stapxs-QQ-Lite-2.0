@@ -8,7 +8,7 @@ import { PopInfo, PopType } from '@/function/base'
 import { Connector, login } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
-import { hslToRgb, rgbToHsl } from '@/utils/systemUtil'
+import { hslToRgb, rgbToHsl } from '@/function/utils/systemUtil'
 
 const popInfo = new PopInfo()
 

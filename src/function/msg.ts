@@ -18,9 +18,9 @@ import pinyin from 'pinyin'
 
 import Umami from '@bitprojects/umami-logger-typescript'
 
-import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/utils/msgUtil'
-import { htmlDecodeByRegExp, randomNum } from '@/utils/systemUtil'
-import { reloadUsers, downloadFile, updateMenu } from '@/utils/appUtil'
+import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/function/utils/msgUtil'
+import { htmlDecodeByRegExp, randomNum } from '@/function/utils/systemUtil'
+import { reloadUsers, downloadFile, updateMenu } from '@/function/utils/appUtil'
 import { reactive, nextTick, markRaw, defineAsyncComponent } from 'vue'
 import { PopInfo, PopType, Logger, LogType } from './base'
 import { Connector, login } from './connect'

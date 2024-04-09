@@ -133,9 +133,9 @@ import { Connector } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { Logger, PopInfo, PopType } from '@/function/base'
 import { StringifyOptions } from 'querystring'
-import { getFace, getMsgRawTxt } from '@/utils/msgUtil'
-import { openLink, downloadFile } from '@/utils/appUtil'
-import { getSizeFromBytes } from '@/utils/systemUtil'
+import { getFace, getMsgRawTxt } from '@/function/utils/msgUtil'
+import { openLink, downloadFile } from '@/function/utils/appUtil'
+import { getSizeFromBytes } from '@/function/utils/systemUtil'
 
 export default defineComponent({
     name: 'MsgBody',

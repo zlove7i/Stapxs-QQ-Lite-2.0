@@ -60,7 +60,7 @@ import { runtimeData } from '@/function/msg'
 
 import Option from '@/function/option'
 import { MsgItemElem, SQCodeElem } from '@/function/elements/information'
-import { getFace } from '@/utils/msgUtil'
+import { getFace } from '@/function/utils/msgUtil'
 
 export default defineComponent({
     name: 'FacePan',

@@ -83,7 +83,7 @@
 import { runASWEvent as saveR, remove } from '@/function/option'
 import { runtimeData } from '@/function/msg'
 import { Connector, login } from '@/function/connect'
-import { getTrueLang } from '@/utils/systemUtil'
+import { getTrueLang } from '@/function/utils/systemUtil'
 
 export default {
     name: 'ViewOptAccount',
