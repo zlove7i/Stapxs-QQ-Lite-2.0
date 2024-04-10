@@ -16,9 +16,9 @@ export function getMsgData(name: string, msg: { [key: string]: any }, map: strin
     let back = undefined
     // 解析数据
     if (map != undefined) {
-        if (typeof map == 'string' || map._basic != undefined) {
+        if (typeof map == 'string' || map.source != undefined) {
             try {
-                back = jp.query(msg, replaceJPValue(typeof map == 'string' ? map : map._basic))
+                back = jp.query(msg, replaceJPValue(typeof map == 'string' ? map : map.source))
                 if(typeof map != 'string' && map._list != undefined) {
                     const backList = [] as any[]
                     back.forEach((item) => {
@@ -75,13 +75,13 @@ export function getFace(id: number) {
 }
 
 /**
- * 将一个消息体列表组装为标准消息列表便于解析
+ * 将一个消息体列表组装为基础消息列表便于解析（message 消息体可能不正确——
  * @param msgList 
  * @param map 
  * @returns 
  */
-export function buildMsgList(msgList: any) {
-    const path = jp.parse(runtimeData.jsonMap.message_list._basic)
+export function buildMsgList(msgList: { [key: string]: any }): { [key: string]: any } {
+    const path = jp.parse(runtimeData.jsonMap.message_list.source)
     const keys = [] as string[]
     path.forEach((item) => {
         if (item.expression.value != '*' && item.expression.value != '$') {

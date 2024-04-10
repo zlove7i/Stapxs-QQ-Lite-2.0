@@ -516,15 +516,15 @@ export default defineComponent({
                 const type = runtimeData.chatInfo.show.type
                 const id = runtimeData.chatInfo.show.id
                 let name
-                if(runtimeData.jsonMap.message_list_private && type != "group") {
-                    name = runtimeData.jsonMap.message_list_private._name
+                if(runtimeData.jsonMap.message_list && type != "group") {
+                    name = runtimeData.jsonMap.message_list.private_name
                 } else {
-                    name = runtimeData.jsonMap.message_list._name
+                    name = runtimeData.jsonMap.message_list.name
                 }
                 Connector.send(
                     name ?? 'get_chat_history',
                     {
-                        message_type: runtimeData.jsonMap.message_list._message_type[type],
+                        message_type: runtimeData.jsonMap.message_list.message_type[type],
                         group_id: type == "group" ? id : undefined,
                         user_id: type != "group" ? id : undefined,
                         message_seq: firstMsgId,
@@ -1293,10 +1293,10 @@ export default defineComponent({
             // 在发送操作触发之后，将会解析此条字符串排列出最终需要发送的消息结构用于发送。
             let msg = SendUtil.parseMsg(this.msg, this.sendCache, this.imgCache)
             // 检查消息体是否需要处理
-            const messageType = runtimeData.jsonMap.message_list._type.split('|')[0]
+            const messageType = runtimeData.jsonMap.message_list.type.split('|')[0]
             switch (messageType) {
                 case 'json_with_data': {
-                    const map = runtimeData.jsonMap.message_list._type.split('|')[1]
+                    const map = runtimeData.jsonMap.message_list.type.split('|')[1]
                     const path = jp.parse(map)
                     const keys = [] as string[]
                     path.forEach((item) => {
@@ -1331,17 +1331,17 @@ export default defineComponent({
                 switch (this.chat.show.type) {
                     case 'group': 
                         Connector.send(
-                            runtimeData.jsonMap.message_list._name_group_send ?? 'send_group_msg',
+                            runtimeData.jsonMap.message_list.name_group_send ?? 'send_group_msg',
                             { 'group_id': this.chat.show.id, 'message': msg },'sendMsgBack'); break
                     case 'user': 
                     {
                         if(this.chat.show.temp) {
                             Connector.send(
-                                runtimeData.jsonMap.message_list._name_temp_send ?? 'send_temp_msg', 
+                                runtimeData.jsonMap.message_list.name_temp_send ?? 'send_temp_msg', 
                                 { 'user_id': this.chat.show.id, 'group_id': this.chat.show.temp, 'message': msg }, 'sendMsgBack');
                         } else {
                             Connector.send(
-                                runtimeData.jsonMap.message_list._name_user_send ?? 'send_private_msg',
+                                runtimeData.jsonMap.message_list.name_user_send ?? 'send_private_msg',
                                  { 'user_id': this.chat.show.id, 'message': msg }, 'sendMsgBack');
                         }
                         break

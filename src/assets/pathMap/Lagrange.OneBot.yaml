@@ -1,0 +1,64 @@
+# Lagrange.OneBot 消息结构声明
+# https://github.com/botuniverse/onebot-11
+# PS：解析中可以使用 jsonpath，左斜杠开头则表示为当前位置
+
+# Bot 名称
+name: Lagrange.OneBot
+
+# Bot 版本信息
+version_info: $.data
+# 登录信息
+login_info:
+    uin: $.data.user_id
+    bkn: ""
+    nickname: $.data.nickname
+# 群、好友列表
+user_list:
+    source: $.data[*]
+    list:
+        group_id: /group_id
+        group_name: /group_name
+        member_count: /member_count
+        admin_flag: $.admins[?(@ == '<uin>')]
+
+        class_id: /group_id
+        class_name: /group_name
+        user_id: /user_id
+        nickname: /nickname
+        remark: /remark
+# 收藏表情
+roaming_stamp:
+    name: fetch_custom_face
+# 消息列表
+message_list:
+    name: get_group_msg_history
+    private_name: get_friend_msg_history
+    source: $.data.messages[*]
+    type: json_with_data|$.data
+    message_type:
+        user: private
+        group: group
+    list:
+        message_id: /message_id
+        message_type: /message_type
+        time: /time
+        post_type: null
+        group_id: /group_id
+        sender: /sender
+        message: /message
+        raw_message: /raw_message
+# 转发消息体
+forward_msg:
+    name: get_forward_msg
+    source: $.data.message[*].data
+# 消息基础信息
+message_info:
+    message_id: $.message_id
+    private_id: $.user_id
+    group_id: $.group_id
+    sender: $.sender.user_id
+# 获取消息体
+get_message: $.message
+message_value:                  # 这是消息转义，防止某些消息字段不同
+    image:
+        url: $.file

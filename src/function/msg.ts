@@ -17,6 +17,7 @@ import xss from 'xss'
 import pinyin from 'pinyin'
 
 import Umami from '@bitprojects/umami-logger-typescript'
+import Message from '@/function/elements/message'
 
 import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/function/utils/msgUtil'
 import { htmlDecodeByRegExp, randomNum } from '@/function/utils/systemUtil'
@@ -31,7 +32,7 @@ import { IPinyinOptions } from 'pinyin/lib/declare'
 const logger = new Logger()
 const popInfo = new PopInfo()
 // eslint-disable-next-line
-let msgPath = require('@/assets/pathMap/oicq2.json')
+let msgPath = require('@/assets/pathMap/Lagrange.OneBot.yaml')
 
 export function parse(str: string) {
     const msg = JSON.parse(str)
@@ -123,7 +124,8 @@ function saveBotInfo(msg: { [key: string]: any }) {
             // 尝试动态载入对应的 pathMap
             if (data.app_name !== undefined) {
                 try {
-                    msgPath = require(`@/assets/pathMap/${data.app_name}.json`)
+                    // eslint-disable-next-line
+                    msgPath = require(`@/assets/pathMap/${data.app_name}.yaml`)
                     runtimeData.jsonMap = msgPath
                     logger.debug('加载 JSON 映射表：' + msgPath._name)
                 } catch(ex) {
@@ -303,9 +305,9 @@ function saveForwardMsg(msg: any) {
 
 function getMessageList(list: any[] | undefined) {
     if (list != undefined) {
-        list = parseMsgList(list, msgPath.message_list._type, msgPath.message_value)
+        list = parseMsgList(list, msgPath.message_list.type, msgPath.message_value)
         // 倒序处理
-        if (msgPath.message_list._order === 'reverse') {
+        if (msgPath.message_list.order === 'reverse') {
             list.reverse()
         }
         // 检查必要字段
@@ -329,7 +331,7 @@ function showSendedMsg(msg: any, echoList: string[]) {
         if (msg.message_id !== undefined && Option.get('send_reget') !== true) {
             // 请求消息内容
             Connector.send(
-                runtimeData.jsonMap.get_message._name ?? 'get_msg',
+                runtimeData.jsonMap.get_message.name ?? 'get_msg',
                 { 'message_id': msg.message_id },
                 'getSendMsg_' + msg.message_id + '_0'
             )
@@ -360,7 +362,7 @@ function saveSendedMsg(echoList: string[], data: any) {
                     //     app.config.globalProperties.$t('pop_chat_get_msg_err') + ' ( A' + echoList[2] + ' )')
                     setTimeout(() => {
                         Connector.send(
-                            runtimeData.jsonMap.get_message._name ?? 'get_msg',
+                            runtimeData.jsonMap.get_message.name ?? 'get_msg',
                             { 'message_id': echoList[1] },
                             'getSendMsg_' + echoList[1] + '_' + (Number(echoList[2]) + 1)
                         )
@@ -379,7 +381,7 @@ function saveSendedMsg(echoList: string[], data: any) {
             //     app.config.globalProperties.$t('pop_chat_get_msg_err') + ' ( B' + echoList[2] + ' )')
             setTimeout(() => {
                 Connector.send(
-                    runtimeData.jsonMap.get_message._name ?? 'get_msg',
+                    runtimeData.jsonMap.get_message.name ?? 'get_msg',
                     { 'message_id': echoList[1] },
                     'getSendMsg_' + echoList[1] + '_' + (Number(echoList[2]) + 1)
                 )
@@ -658,7 +660,7 @@ function newMsg(data: any) {
         // 对消息进行一次格式化处理
         let list = getMsgData('message_list', buildMsgList([data]), msgPath.message_list)
             if (list != undefined) {
-                list = parseMsgList(list, msgPath.message_list._type, msgPath.message_value)
+                list = parseMsgList(list, msgPath.message_list.type, msgPath.message_value)
                 data = list[0]
             }
         // 对于其他不在消息里标记 atme、atall 的处理

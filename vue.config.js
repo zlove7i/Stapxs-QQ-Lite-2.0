@@ -15,7 +15,11 @@ module.exports = {
                 {
                     test: /\.txt$/i,
                     use: 'raw-loader',
-                }
+                },
+                {
+                    test: /\.yaml$/,
+                    use: 'js-yaml-loader',
+                  }
             ]
         }
     },

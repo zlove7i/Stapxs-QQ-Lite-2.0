@@ -90,16 +90,16 @@ export function loadHistory(info: BaseChatInfoElem) {
 }
 export function loadHistoryMessage(id: number, type: string, count = 20, echo = 'getChatHistoryFist') {
     let name
-    if(runtimeData.jsonMap.message_list_private && type != "group") {
-        name = runtimeData.jsonMap.message_list_private._name
+    if(runtimeData.jsonMap.message_list && type != "group") {
+        name = runtimeData.jsonMap.message_list.private_name
     } else {
-        name = runtimeData.jsonMap.message_list._name
+        name = runtimeData.jsonMap.message_list.name
     }
 
     Connector.send(
         name ?? 'get_chat_history',
         {
-            message_type: runtimeData.jsonMap.message_list._message_type[type],
+            message_type: runtimeData.jsonMap.message_list.message_type[type],
             group_id: type == "group" ? id : undefined,
             user_id: type != "group" ? id : undefined,
             message_seq: 0,

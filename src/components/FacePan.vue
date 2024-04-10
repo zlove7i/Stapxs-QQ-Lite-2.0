@@ -87,7 +87,7 @@ export default defineComponent({
     mounted() {
         // 加载漫游表情
         if (runtimeData.stickerCache === undefined) {
-            Connector.send(runtimeData.jsonMap.roaming_stamp._name, {}, 'getRoamingStamp')
+            Connector.send(runtimeData.jsonMap.roaming_stamp.name, {}, 'getRoamingStamp')
         }
     }
 })
