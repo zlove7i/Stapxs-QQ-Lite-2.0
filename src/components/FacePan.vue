@@ -60,7 +60,7 @@ import { runtimeData } from '@/function/msg'
 
 import Option from '@/function/option'
 import { MsgItemElem, SQCodeElem } from '@/function/elements/information'
-import { getFace } from '@/utils/msgUtil'
+import { getFace } from '@/function/utils/msgUtil'
 
 export default defineComponent({
     name: 'FacePan',
@@ -87,7 +87,7 @@ export default defineComponent({
     mounted() {
         // 加载漫游表情
         if (runtimeData.stickerCache === undefined) {
-            Connector.send(runtimeData.jsonMap.roaming_stamp._name, {}, 'getRoamingStamp')
+            Connector.send(runtimeData.jsonMap.roaming_stamp.name, {}, 'getRoamingStamp')
         }
     }
 })

@@ -14,7 +14,7 @@ import { LogType, Logger, PopType, PopInfo  } from './base'
 import { parse, runtimeData, resetRimtime } from './msg'
 
 import { BotActionElem, LoginCacheElem } from './elements/system'
-import { updateMenu } from "@/utils/appUtil"
+import { updateMenu } from "@/function/utils/appUtil"
 
 const logger = new Logger()
 const popInfo = new PopInfo()

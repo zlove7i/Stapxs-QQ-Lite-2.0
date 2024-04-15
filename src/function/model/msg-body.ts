@@ -12,8 +12,8 @@ import app from '@/main'
 import { PopInfo, PopType } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { Connector } from '@/function/connect'
-import { openLink } from '@/utils/appUtil'
-import { getDeviceType } from '@/utils/systemUtil'
+import { openLink } from '@/function/utils/appUtil'
+import { getDeviceType } from '@/function/utils/systemUtil'
 
 const popInfo = new PopInfo()
 
@@ -228,7 +228,7 @@ export class MsgBodyFuns {
 
     static getForwardMsg(id: any) {
         if (id !== 'undefined') {
-            Connector.send(runtimeData.jsonMap.forward_msg._name
+            Connector.send(runtimeData.jsonMap.forward_msg.name
                 , { id: id }, 'getForwardMsg')
         } else {
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_chat_forward_toooomany'))

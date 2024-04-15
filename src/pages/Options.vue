@@ -213,7 +213,7 @@ import OptDev from './options/OptDev.vue'
 import OptFunction from './options/OptFunction.vue'
 
 import { ContributorElem } from '@/function/elements/system'
-import { openLink } from '@/utils/appUtil'
+import { openLink } from '@/function/utils/appUtil'
 
 export default defineComponent({
     name: 'ViewOption',

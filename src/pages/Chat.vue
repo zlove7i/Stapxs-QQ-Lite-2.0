@@ -304,6 +304,10 @@
                     <div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"/></svg></div>
                     <a>{{ $t('chat_msg_menu_copy_selected') }}</a>
                 </div>
+                <div @click="downloadImg" v-show="tags.menuDisplay.downloadImg != false">
+                    <div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32H64zm0 96c0-17.7 14.3-32 32-32H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></div>
+                    <a>{{ $t('chat_msg_menu_download_img') }}</a>
+                </div>
                 <div @click="revokeMsg" v-show="tags.menuDisplay.revoke">
                     <div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg></div>
                     <a>{{ $t('chat_msg_menu_withdraw') }}</a>
@@ -392,10 +396,10 @@ import imageCompression from 'browser-image-compression'
 import jp from 'jsonpath'
 
 import { defineComponent, markRaw } from 'vue'
-import { loadHistory as loadHistoryFirst } from '@/utils/appUtil'
-import { getTrueLang } from '@/utils/systemUtil'
-import { getMsgRawTxt, parseJSONCQCode } from '@/utils/msgUtil'
-import { scrollToMsg } from '@/utils/appUtil'
+import { downloadFile, loadHistory as loadHistoryFirst } from '@/function/utils/appUtil'
+import { getTrueLang } from '@/function/utils/systemUtil'
+import { getMsgRawTxt, parseJSONCQCode } from '@/function/utils/msgUtil'
+import { scrollToMsg } from '@/function/utils/appUtil'
 import { Logger, LogType, PopInfo, PopType } from '@/function/base'
 import { Connector, login as loginInfo } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
@@ -432,6 +436,7 @@ export default defineComponent({
                     select: false,
                     copy: true,
                     copySelect: false,
+                    downloadImg: false as string | false,
                     revoke: false,
                     at: true,
                     remove: false
@@ -516,15 +521,15 @@ export default defineComponent({
                 const type = runtimeData.chatInfo.show.type
                 const id = runtimeData.chatInfo.show.id
                 let name
-                if(runtimeData.jsonMap.message_list_private && type != "group") {
-                    name = runtimeData.jsonMap.message_list_private._name
+                if(runtimeData.jsonMap.message_list && type != "group") {
+                    name = runtimeData.jsonMap.message_list.private_name
                 } else {
-                    name = runtimeData.jsonMap.message_list._name
+                    name = runtimeData.jsonMap.message_list.name
                 }
                 Connector.send(
                     name ?? 'get_chat_history',
                     {
-                        message_type: runtimeData.jsonMap.message_list._message_type[type],
+                        message_type: runtimeData.jsonMap.message_list.message_type[type],
                         group_id: type == "group" ? id : undefined,
                         user_id: type != "group" ? id : undefined,
                         message_seq: firstMsgId,
@@ -768,6 +773,10 @@ export default defineComponent({
                             this.tags.menuDisplay.forward = false
                         }
                     })
+                    if(select.nodeName == 'IMG') {
+                        // 右击图片需要显示的内容，这边特例设置为链接
+                        this.tags.menuDisplay.downloadImg = (select as HTMLImageElement).src
+                    }
                 }
                 // 鼠标位置
                 const pointEvent = event as PointerEvent || window.event as PointerEvent
@@ -817,6 +826,7 @@ export default defineComponent({
                 select: false,
                 copy: true,
                 copySelect: false,
+                downloadImg: false,
                 revoke: false,
                 at: false,
                 remove: false
@@ -961,6 +971,17 @@ export default defineComponent({
                     console.log(e)
                     popInfo.add(PopType.ERR, this.$t('pop_chat_msg_menu_copy_err'), true)
                 })
+            }
+            this.closeMsgMenu()
+        },
+
+        /**
+         * 下载选中的图片
+         */
+         downloadImg() {
+            const url = this.tags.menuDisplay.downloadImg
+            if(url != false) {
+                downloadFile(url as string, 'img.png', () => undefined)
             }
             this.closeMsgMenu()
         },
@@ -1293,10 +1314,10 @@ export default defineComponent({
             // 在发送操作触发之后，将会解析此条字符串排列出最终需要发送的消息结构用于发送。
             let msg = SendUtil.parseMsg(this.msg, this.sendCache, this.imgCache)
             // 检查消息体是否需要处理
-            const messageType = runtimeData.jsonMap.message_list._type.split('|')[0]
+            const messageType = runtimeData.jsonMap.message_list.type.split('|')[0]
             switch (messageType) {
                 case 'json_with_data': {
-                    const map = runtimeData.jsonMap.message_list._type.split('|')[1]
+                    const map = runtimeData.jsonMap.message_list.type.split('|')[1]
                     const path = jp.parse(map)
                     const keys = [] as string[]
                     path.forEach((item) => {
@@ -1331,17 +1352,17 @@ export default defineComponent({
                 switch (this.chat.show.type) {
                     case 'group': 
                         Connector.send(
-                            runtimeData.jsonMap.message_list._name_group_send ?? 'send_group_msg',
+                            runtimeData.jsonMap.message_list.name_group_send ?? 'send_group_msg',
                             { 'group_id': this.chat.show.id, 'message': msg },'sendMsgBack'); break
                     case 'user': 
                     {
                         if(this.chat.show.temp) {
                             Connector.send(
-                                runtimeData.jsonMap.message_list._name_temp_send ?? 'send_temp_msg', 
+                                runtimeData.jsonMap.message_list.name_temp_send ?? 'send_temp_msg', 
                                 { 'user_id': this.chat.show.id, 'group_id': this.chat.show.temp, 'message': msg }, 'sendMsgBack');
                         } else {
                             Connector.send(
-                                runtimeData.jsonMap.message_list._name_user_send ?? 'send_private_msg',
+                                runtimeData.jsonMap.message_list.name_user_send ?? 'send_private_msg',
                                  { 'user_id': this.chat.show.id, 'message': msg }, 'sendMsgBack');
                         }
                         break
