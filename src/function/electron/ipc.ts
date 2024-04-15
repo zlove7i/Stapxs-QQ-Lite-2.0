@@ -89,7 +89,10 @@ export function regIpcListener() {
                     }
                 })
                 item.on('done', (event, state) => {
-                    shell.showItemInFolder((event as any).sender.getSavePath())
+                    win?.setProgressBar(-1)
+                    const sender = (event as any).sender
+                    if(sender)
+                        shell.showItemInFolder(sender.getSavePath())
                 })
             })
             win.webContents.downloadURL(downloadPath)

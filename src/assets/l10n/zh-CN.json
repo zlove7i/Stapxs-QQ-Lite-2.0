@@ -303,6 +303,7 @@
   "load_success": "应用显示完成，应用初始化完成！欢迎使用 {name}！",
   "pop_reload_user_success": "刷新用户列表成功",
   "pop_log_con_close": "正在断开链接……",
+  "chat_msg_menu_download_img": "下载图片",
 
   "menu_about": "关于",
   "menu_update": "检查更新…",
