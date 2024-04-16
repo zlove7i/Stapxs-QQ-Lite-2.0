@@ -69,19 +69,19 @@ async function createWindow() {
     }
 
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-        if(details.responseHeaders) {
-            // 绕过 CSP 限制，X-Frame-Options 限制
-            details.responseHeaders['content-security-policy'] = ['*']
-            delete details.responseHeaders['x-frame-options']
-            // https://multimedia.nt.qq.com.cn/download
-            // 给这个域名添加文件名头
+        if (details.responseHeaders) {
             if(details.url.startsWith('https://multimedia.nt.qq.com.cn/download')) {
+                // 给这个域名添加文件名头
                 const contentType = details.responseHeaders['content-type']
                 if(contentType && contentType[0]) {
                     const typeName = contentType[0].split('/')[1]
                     details.responseHeaders['content-disposition'] =
                             ['attachment; filename="file.' + typeName]
                 }
+            } else if (!details.url.startsWith('chrome-extension://')) {
+                // 绕过 CSP 限制，X-Frame-Options 限制
+                details.responseHeaders['content-security-policy'] = ['*']
+                delete details.responseHeaders['x-frame-options']
             }
         }
         callback({ cancel: false, responseHeaders: details.responseHeaders })

@@ -1,0 +1,51 @@
+name: NapCat.Onebot
+
+version_info: $.data
+login_info:
+    uin: $.data.user_id
+    bkn: ""
+    nickname: $.data.nickname
+user_list:
+    source: $.data[*]
+    list:
+        group_id: /group_id
+        group_name: /group_name
+        member_count: /member_count
+        admin_flag: $.admins[?(@ == '<uin>')]
+
+        class_id: /group_id
+        class_name: /group_name
+        user_id: /user_id
+        nickname: /nickname
+        remark: /remark
+roaming_stamp:
+    name: fetch_custom_face
+message_list:
+    name: get_group_msg_history
+    private_name: get_private_msg_history
+    source: $.data.messages[*]
+    type: json_with_data|$.data
+    message_type:
+        user: private
+        group: group
+    list:
+        message_id: /message_id
+        message_type: /message_type
+        time: /time
+        post_type: null
+        group_id: /group_id
+        sender: /sender
+        message: /message
+        raw_message: /raw_message
+forward_msg:
+    name: get_forward_msg
+    source: $.data.message[*].data
+message_info:
+    message_id: $.message_id
+    private_id: $.user_id
+    group_id: $.group_id
+    sender: $.sender.user_id
+get_message: $.message
+message_value:                  # 这是消息转义，防止某些消息字段不同
+    image:
+        url: $.file

@@ -17,7 +17,6 @@ import xss from 'xss'
 import pinyin from 'pinyin'
 
 import Umami from '@bitprojects/umami-logger-typescript'
-import Message from '@/function/elements/message'
 
 import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/function/utils/msgUtil'
 import { htmlDecodeByRegExp, randomNum } from '@/function/utils/systemUtil'
