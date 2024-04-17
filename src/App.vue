@@ -499,10 +499,10 @@ export default defineComponent({
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        // 正式版本的更新记录必须是 # 开头的 commit
-                        if (process.env.NODE_ENV == 'production') {
-                            data = data.filter((item: any) => item.commit.message.startsWith('#'))
-                        }
+                        // // 正式版本的更新记录必须是 # 开头的 commit
+                        // if (process.env.NODE_ENV == 'production') {
+                        //     data = data.filter((item: any) => item.commit.message.startsWith('#'))
+                        // }
                         const json = data[0]
                         // 动态生成更新记录部分
                         const div = document.createElement('div')

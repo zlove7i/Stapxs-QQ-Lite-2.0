@@ -43,6 +43,17 @@ jobs:
         fi
         # 获取版本号
         echo VERSION=$(node -p "require('./package.json').version") >> $GITHUB_OUTPUT
+    # 设置 Node.js 版本
+    - name: Load Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+    # 更新依赖
+    - name: Install
+      run: yarn
+    # 代码检查
+    - name: Lint
+      run: yarn lint
 
   # ========================= 构建 Web 版本 ========================= 
   build-pages:
@@ -158,7 +169,7 @@ jobs:
           ## 自动构建信息
           - 构建时间：${{ github.event.head_commit.timestamp }}
           - 构建提交：${{ github.event.head_commit.id }}
-          - 构建分支：${{ github.event.head_commit.branch }}
+          - 构建分支：${{ github.event.head_commit.tree_id }}
         draft: false
         prerelease: false
         token: ${{ secrets.ACCESS_TOKEN }}

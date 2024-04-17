@@ -228,8 +228,8 @@ export default defineComponent({
                         runtimeData.onMsgList.splice(index, 1)
                         break
                     }
-                    case 'top': this.saveTop(true); break
-                    case 'canceltop': this.saveTop(false); break
+                    case 'top': this.saveTop(item, true); break
+                    case 'canceltop': this.saveTop(item, false); break
                 }
             }
             this.menu.select = undefined
@@ -239,9 +239,10 @@ export default defineComponent({
          * 保存置顶信息
          * @param event 点击事件
          */
-         saveTop(value: boolean) {
+         saveTop(item: any, value: boolean) {
             const id = runtimeData.loginInfo.uin
-            // 完整的 cookie JSON
+            const upId = item.user_id ? item.user_id : item.group_id
+            // 完整的设置 JSON
             let topInfo = runtimeData.sysConfig.top_info as { [key: string]: number[] }
             if (topInfo == null) {
                 topInfo = {}
@@ -252,29 +253,23 @@ export default defineComponent({
             if (value) {
                 if (topList) {
                     if (topList.indexOf(this.chat.show.id) < 0) {
-                        topList.push(this.chat.show.id)
+                        topList.push(upId)
                     }
                 } else {
-                    topList = [this.chat.show.id]
+                    topList = [upId]
                 }
             } else {
                 if (topList) {
-                    topList.splice(topList.indexOf(this.chat.show.id), 1)
+                    topList.splice(topList.indexOf(upId), 1)
                 }
             }
-            // 刷新 cookie
+            // 刷新设置
             if (topList) {
                 topInfo[id] = topList
                 Option.save('top_info', topInfo)
             }
             // 为消息列表内的对象刷新置顶标志
-            for (let i = 0; i < runtimeData.onMsgList.length; i++) {
-                const item = runtimeData.onMsgList[i]
-                if (item.user_id == this.chat.show.id || item.group_id == this.chat.show.id) {
-                    runtimeData.onMsgList[i].always_top = value
-                    break
-                }
-            }
+            item.always_top = value
             // 重新排序列表
             const newList = [] as (UserFriendElem & UserGroupElem)[]
             let topNum = 1

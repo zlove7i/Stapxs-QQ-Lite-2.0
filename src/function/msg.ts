@@ -202,7 +202,7 @@ function saveUser(msg: { [key: string]: any }, type: string) {
         runtimeData.userList = runtimeData.userList.concat(list)
         // 刷新置顶列表
         const info = runtimeData.sysConfig.top_info as { [key: string]: number[] } | null
-        if (info != null && runtimeData.onMsgList.length <= 0) {
+        if (info != null) {
             const topList = info[runtimeData.loginInfo.uin]
             if (topList !== undefined) {
                 list.forEach((item) => {
@@ -610,16 +610,18 @@ function newMsg(data: any) {
     if (infoList != undefined) {
         const info = infoList[0]
         const id = info.group_id ?? info.private_id
+        const loginId = runtimeData.loginInfo.uin
+        const showId = runtimeData.chatInfo.show.id
         // const sender = info.sender
 
         // TODO：有点 BUG 但是暂时不知道为什么
         // 消息回调检查
         // PS：如果在新消息中获取到了自己的消息，则自动打开“停止消息回调”设置防止发送的消息重复
-        // if (Option.get('send_reget') !== true && sender === runtimeData.loginInfo.uin) {
+        // if (Option.get('send_reget') !== true && sender === loginId) {
         //     Option.save('send_reget', true)
         // }
         // 显示消息
-        if (id === runtimeData.chatInfo.show.id && id !== runtimeData.loginInfo.uin) {
+        if (id === showId || info.target_id == showId) {
             // 保存消息
             saveMsg(buildMsgList([data]), 'bottom')
             // 抽个签
@@ -665,7 +667,7 @@ function newMsg(data: any) {
         // 对于其他不在消息里标记 atme、atall 的处理
         if (data.atme == undefined || data.atall == undefined) {
             data.message.forEach((item: any) => {
-                if (item.type == 'at' && item.qq == runtimeData.loginInfo.uin) {
+                if (item.type == 'at' && item.qq == loginId) {
                     data.atme = true
                 }
             })
@@ -674,10 +676,10 @@ function newMsg(data: any) {
         if (data.sub_type === 'group') {
             data.sender.nickname = data.sender.user_id
         }
-        // (发送者不是群组 || 群组 AT || 群组 AT 全体 || 打开了通知全部消息) 这些情况需要进行新消息处理
-        if (data.message_type !== 'group' || data.atme || data.atall || Option.get('notice_all') === true) {
-            // ((发送者没有被打开 || 窗口被最小化) && 发送者不是自己) 这些情况需要进行消息通知
-            if ((id !== runtimeData.chatInfo.show.id || document.hidden) && id !== runtimeData.loginInfo.uin) {
+        // ((发送者不是群组 && 发送者不是自己) || 群组 AT || 群组 AT 全体 || 打开了通知全部消息) 这些情况需要进行新消息处理
+        if ((data.user_id != loginId && data.message_type !== 'group') || data.atme || data.atall || Option.get('notice_all') === true) {
+            // (发送者没有被打开 || 窗口被最小化) 这些情况需要进行消息通知
+            if (id !== showId || document.hidden) {
                 // 检查通知权限，老旧浏览器不支持这个功能
                 if (Notification.permission === 'default') {
                     Notification.requestPermission(() => {
@@ -723,7 +725,7 @@ function newMsg(data: any) {
 
             runtimeData.onMsgList.forEach((item) => {
                 // 刷新新消息标签
-                if (id !== runtimeData.chatInfo.show.id && (id == item.group_id || id == item.user_id)) {
+                if (id !== showId && (id == item.group_id || id == item.user_id)) {
                     item.new_msg = true
                 }
             })
