@@ -31,14 +31,24 @@ message_list:
         target_id: /target_id
         message_type: /message_type
         time: /time
-        post_type: null
+        post_type: /post_type
         group_id: /group_id
         sender: /sender
         message: /message
         raw_message: /raw_message
 forward_msg:
     name: get_forward_msg
-    source: $.data.message[*].data
+    source: $.data.messages[*]
+    list:
+        message_id: /message_id
+        target_id: null
+        message_type: /message_type
+        time: /time
+        post_type: /post_type
+        group_id: /group_id
+        sender: /sender
+        message: /content
+        raw_message: null
 message_info:
     message_id: $.message_id
     private_id: $.user_id

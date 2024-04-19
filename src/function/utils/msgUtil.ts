@@ -19,16 +19,16 @@ export function getMsgData(name: string, msg: { [key: string]: any }, map: strin
         if (typeof map == 'string' || map.source != undefined) {
             try {
                 back = jp.query(msg, replaceJPValue(typeof map == 'string' ? map : map.source))
-                if(typeof map != 'string' && map._list != undefined) {
+                if(typeof map != 'string' && map.list != undefined) {
                     const backList = [] as any[]
                     back.forEach((item) => {
                         const itemObj = {} as any
-                        Object.keys(map._list).forEach((key: string) => {
-                            if(map._list[key] != '') {
-                                if(map._list[key].startsWith('/'))
-                                    itemObj[key] = item[map._list[key].substring(1)]
+                        Object.keys(map.list).forEach((key: string) => {
+                            if(map.list[key] && map.list[key] != '') {
+                                if(map.list[key].startsWith('/'))
+                                    itemObj[key] = item[map.list[key].substring(1)]
                                 else
-                                    itemObj[key] = jp.query(item, replaceJPValue(map._list[key]))[0]
+                                    itemObj[key] = jp.query(item, replaceJPValue(map.list[key]))[0]
                             }
                         })
                         backList.push(itemObj)
@@ -36,7 +36,7 @@ export function getMsgData(name: string, msg: { [key: string]: any }, map: strin
                     back = backList
                 }
             } catch(ex) {
-                logger.error(`解析 JSON 错误：${name} -> ${map}`)
+                logger.error(`解析消息 JSON 错误：${name} -> ${map}`)
                 console.log(ex)
             }
         } else {

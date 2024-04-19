@@ -271,7 +271,7 @@
                             <span>Lv {{ mumberInfo.level }}</span>
                         </div>
                     </div>
-                    <span> {{ $t('chat_join_time', {
+                    <span v-if="mumberInfo.join_time"> {{ $t('chat_join_time', {
                             time: Intl.DateTimeFormat(trueLang,
                                 { year: 'numeric', month: "short", day: "numeric" }).format(new Date(mumberInfo.join_time * 1000))
                         })

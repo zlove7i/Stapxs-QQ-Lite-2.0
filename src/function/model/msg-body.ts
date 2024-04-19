@@ -228,8 +228,8 @@ export class MsgBodyFuns {
 
     static getForwardMsg(id: any) {
         if (id !== 'undefined') {
-            Connector.send(runtimeData.jsonMap.forward_msg.name
-                , { id: id }, 'getForwardMsg')
+            Connector.send(runtimeData.jsonMap.forward_msg.name, { id: id }, 'getForwardMsg')
+            popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_get_forward'))
         } else {
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_chat_forward_toooomany'))
         }

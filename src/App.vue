@@ -472,6 +472,10 @@ export default defineComponent({
             logger.debug(this.$t('log_runtime') + ': ' + process.env.NODE_ENV)
             // UM：加载 Umami 统计功能
             if (!Option.get('close_ga') && process.env.NODE_ENV == 'production') {
+                // 给页面添加一个来源域名方便在 electron 中获取
+                if(runtimeData.tags.isElectron) {
+                    document.cookie = 'origin=electron'
+                }
                 Umami.initialize({
                     baseUrl: process.env.VUE_APP_MU_ADDRESS,
                     websiteId: process.env.VUE_APP_MU_ID,

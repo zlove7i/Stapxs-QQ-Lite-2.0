@@ -209,7 +209,13 @@ function saveUser(msg: { [key: string]: any }, type: string) {
                     const id = Number(item.user_id ? item.user_id : item.group_id)
                     if (topList.indexOf(id) >= 0) {
                         item.always_top = true
-                        runtimeData.onMsgList.push(item)
+                        // 判断它在不在消息列表里
+                        const get = runtimeData.onMsgList.filter((msg) => {
+                            return msg.user_id === id || msg.group_id === id
+                        })
+                        if (get.length !== 1) {
+                            runtimeData.onMsgList.push(item)
+                        }
                     }
                 })
             }
@@ -419,10 +425,11 @@ function loadFileBase(echoList: string[], msg: any) {
 
 function saveMemberInfo(msg: any) {
     if (msg.data != undefined) {
+        const data = msg.data
         const pointInfo = msg.echo.split('_')
-        msg.x = pointInfo[1]
-        msg.y = pointInfo[2]
-        runtimeData.chatInfo.info.now_member_info = msg
+        data.x = pointInfo[1]
+        data.y = pointInfo[2]
+        runtimeData.chatInfo.info.now_member_info = data
     }
 }
 
@@ -602,6 +609,7 @@ function saveMoreFileList(data: any) {
     }
 }
 
+let qed_try_times = 0
 function newMsg(data: any) {
     // 没有对频道的支持计划
     if (data.detail_type == 'guild') { return }
@@ -640,12 +648,14 @@ function newMsg(data: any) {
                     ]
                 }
                 runtimeData.popBoxList.push(popInfo)
+                Umami.trackEvent('show_qed', { times: qed_try_times })
             }
+            qed_try_times ++
         }
         // 刷新消息列表
         // PS：在消息列表内的永远会刷新，不需要被提及
         const get = runtimeData.onMsgList.filter((item, index) => {
-            if (Number(id) === item.user_id || Number(id) === item.group_id) {
+            if (Number(id) === item.user_id || Number(id) === item.group_id || Number(info.target_id) === item.user_id){
                 runtimeData.onMsgList[index].message_id = data.message_id
                 if (data.message_type === 'group') {
                     const name = (data.sender.card && data.sender.card !== '') ? data.sender.card : data.sender.nickname
