@@ -9,6 +9,7 @@ import { Connector, login } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import { hslToRgb, rgbToHsl } from '@/function/utils/systemUtil'
+import AboutPan from '@/components/AboutPan.vue'
 
 const popInfo = new PopInfo()
 
@@ -378,19 +379,12 @@ export function createIpc() {
             Connector.close()
         })
         reader.on('app:about', () => {
-            const logoCard = document.getElementById('logo-card')
-            if (logoCard) {
-                const div = document.createElement('div')
-                div.innerHTML = logoCard.innerHTML
-                const logoGo = div.getElementsByClassName('ss-button')[0]
-                if (logoGo) logoGo.remove()
-                const popInfo = {
-                    title: app.config.globalProperties.$t('menu_about'),
-                    html: '<div class="ss-card logo-card" style="margin: 0 -40px -20px -40px;box-shadow: none !important;">' +
-                        div.innerHTML + '</div>'
-                }
-                runtimeData.popBoxList.push(popInfo)
+            const popInfo = {
+                title: app.config.globalProperties.$t('menu_about') + ' ' + app.config.globalProperties.$t('name'),
+                template: AboutPan,
+                allowQuickClose: false
             }
+            runtimeData.popBoxList.push(popInfo)
         })
         reader.on('app:changeTab', (event, name) => {
             document.getElementById('bar-' + name.toLowerCase())?.click()

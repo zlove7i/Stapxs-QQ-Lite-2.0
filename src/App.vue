@@ -29,7 +29,7 @@
     </TransitionGroup>
     <div id="base-app">
         <div class="layui-tab layui-tab-brief main-body">
-            <ul class="layui-tab-title">
+            <ul class="layui-tab-title" :style="get('fs_adaptation') != undefined ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
                 <li @click="changeTab('主页', 'Home', true)" :class="loginInfo.status ? 'hiden-home' : 'layui-this'">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">>
                         <path
@@ -57,7 +57,7 @@
                     </svg>
                 </li>
             </ul>
-            <div class="layui-tab-content">
+            <div class="layui-tab-content" :style="get('fs_adaptation') != undefined ? `height: calc(100% - ${75 + Number(get('fs_adaptation'))}px);` : ''">
                 <div :class="!loginInfo.status ? 'layui-tab-item layui-show' : 'layui-tab-item'"
                     :name="$t('home_title')">
                     <div class="home-body">
@@ -167,7 +167,7 @@
         <Transition>
             <div class="pop-box" v-if="runtimeData.popBoxList.length > 0">
                 <div :class="'pop-box-body ss-card' + (runtimeData.popBoxList[0].full ? ' full' : '') + (get('option_view_no_window') == true ? '' : ' window')"
-                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px))'">
+                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px));' + (get('fs_adaptation') != undefined ? ` margin-bottom: ${40 + Number(get('fs_adaptation'))}px;` : '')">
                     <header v-show="runtimeData.popBoxList[0].title != undefined">
                         <div
                             v-if="runtimeData.popBoxList[0].svg != undefined"
@@ -201,7 +201,7 @@
                         </div>
                     </div>
                 </div>
-                <div></div>
+                <div @click="popQuickClose(runtimeData.popBoxList[0].allowQuickClose)"></div>
             </div>
         </Transition>
         <viewer
@@ -425,6 +425,16 @@ export default defineComponent({
             // 如果自动保存密码没开，那也需要开
             if(!runtimeData.sysConfig.save_password) {
                 this.savePassword(event)
+            }
+        },
+
+        /**
+         * 快速关闭弹窗（点击空白处关闭）
+         * @param allow 是否允许快速关闭
+         */
+        popQuickClose(allow: boolean | undefined) {
+            if(allow != false) {
+                runtimeData.popBoxList.shift()
             }
         }
     },

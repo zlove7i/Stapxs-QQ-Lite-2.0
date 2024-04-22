@@ -70,6 +70,8 @@ export class Connector {
             if(runtimeData.sysConfig.save_password && runtimeData.sysConfig.save_password != '') {
                 Option.save('save_password', token)
             }
+            // 清空应用通知
+            popInfo.clear()
             // 加载初始化数据
             // PS：标记登陆成功在获取用户信息的回调位置，防止无法获取到内容
             Connector.send('get_version_info', {}, 'getVersionInfo')

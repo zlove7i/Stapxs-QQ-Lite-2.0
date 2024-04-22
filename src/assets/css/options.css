@@ -42,6 +42,9 @@
     overflow: hidden;
 }
 
+.about-pan>div:not(:first-child) {
+    margin-top: 20px;
+}
 .logo-card {
     color: var(--color-font);
     flex-direction: column;
@@ -71,21 +74,59 @@
 }
 
 .logo-card>div>a {
+    border-radius: 7px !important;
     background: var(--color-main);
     color: var(--color-font-r);
-    border-radius: 2rem;
     margin-left: 10px;
     display: block;
     padding: 0 5px;
 }
 
-.logo-card>a[class=ss-button] {
+.logo-card a[class=ss-button] {
     color: var(--color-font-r);
+    border-radius: 2rem;
     text-align: center;
     line-height: 35px;
     cursor: pointer;
-    margin-top: 20px;
     width: 100%;
+}
+.logo-card a[class=ss-button]>svg {
+    height: calc(100% - 20px);
+    fill: var(--color-font-r);
+}
+
+.jump-card {
+    min-height: unset;
+    cursor: pointer;
+    padding: 15px;
+    display: flex;
+}
+.jump-card header {
+    flex: 1;
+}
+.jump-card header div:first-child {
+    height: 22px;
+}
+.jump-card>header {
+    padding: 0 !important;
+    flex: 1;
+    font-size: 0.9rem !important;
+    font-weight: 400;
+    color: var(--color-font-2);
+}
+.jump-card > svg {
+    fill: var(--color-main);
+    height: 22px;
+}
+
+.buttons {
+    width: 100%;
+}
+.buttons>a {
+    margin: 0 !important;
+}
+.buttons>a:not(:first-child) {
+    margin-left: 10px !important;
 }
 
 .contributors-card {
@@ -111,6 +152,10 @@
 }
 .contributors-card>div>div.me {
     outline: 2px solid var(--color-main);
+    border: 1px solid var(--color-card-1);
+}
+.contributors-card>div>div.super-thanks {
+    outline: 2px dashed var(--color-main);
     border: 1px solid var(--color-card-1);
 }
 
@@ -141,6 +186,10 @@
     transform: scaleX(0);
 }
 
+.opt-about {
+    display: none !important;
+}
+
 .layui-this {
     color: var(--color-main) !important;
 }
@@ -155,6 +204,7 @@
     padding: 5px 20px 10px 20px;
     margin-bottom: 40px;
     text-align: center;
+    margin-top: 20px;
     cursor: pointer;
     flex: 1;
 }
@@ -520,6 +570,9 @@
     .opt-tab {
         justify-content: center;
     }
+    .opt-tab > li {
+        padding: 0 5px;
+    }
     .opt-main {
         height: 100%;
     }
@@ -532,6 +585,10 @@
         flex-wrap: wrap;
         height: auto;
         padding: 10px 15px 10px 20px;
+    }
+
+    .opt-about {
+        display: block !important;
     }
     
     .opt-item select,

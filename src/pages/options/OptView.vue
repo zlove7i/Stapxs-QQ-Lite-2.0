@@ -165,6 +165,17 @@
                     <span :style="`color: var(--color-font${initialScaleShow / 0.05 > 50 ? '-r' : ''})`">{{ initialScaleShow }}</span>
                 </div>
             </div>
+            <div class="opt-item" v-if="isMobile()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM224 160c6.7 0 13 2.8 17.6 7.7l104 112c6.5 7 8.2 17.2 4.4 25.9s-12.5 14.4-22 14.4H120c-9.5 0-18.2-5.7-22-14.4s-2.1-18.9 4.4-25.9l104-112c4.5-4.9 10.9-7.7 17.6-7.7z"/></svg>
+                <div>
+                    <span>{{ $t('option_view_fs_adaptation') }}</span>
+                    <span>{{ $t('option_view_fs_adaptation_tip') }}</span>
+                </div>
+                <div class="ss-range">
+                    <input :style="`width:150px;background-size: ${fsAdaptationShow / 50 * 100}% 100%;`" type="range" min="0" max="50" step="10" v-model="runtimeData.sysConfig.fs_adaptation" name="fs_adaptation" @change="save" @input="setFsAdaptationShow">
+                    <span :style="`color: var(--color-font${fsAdaptationShow / 50 > 0.5 ? '-r' : ''})`">{{ fsAdaptationShow }} px</span>
+                </div>
+            </div>
             <template v-if="runtimeData.tags.isElectron">
                 <div class="opt-item">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 32C419.3 32 448 60.65 448 96V416C448 451.3 419.3 480 384 480H64C28.65 480 0 451.3 0 416V96C0 60.65 28.65 32 64 32H384zM384 80H64C55.16 80 48 87.16 48 96V416C48 424.8 55.16 432 64 432H384C392.8 432 400 424.8 400 416V96C400 87.16 392.8 80 384 80z"/></svg>
@@ -209,6 +220,7 @@ import { defineComponent, toRaw } from 'vue'
 import { runtimeData } from '../../function/msg'
 import { runASWEvent as save, get } from '../../function/option'
 import { BrowserInfo, detect } from 'detect-browser'
+import { getDeviceType } from '@/function/utils/systemUtil'
 
 import languages from '../../assets/l10n/_l10nconfig.json'
 
@@ -223,7 +235,8 @@ export default defineComponent({
             // 别问我为什么微软是紫色的
             colors: ['林槐蓝', '墨竹青', '少女粉', '微软紫', '坏猫黄', '玄素黑'],
             browser: detect() as BrowserInfo,
-            initialScaleShow: 0.1
+            initialScaleShow: 0.1,
+            fsAdaptationShow: 0
         }
     },
     methods: {
@@ -237,6 +250,10 @@ export default defineComponent({
             const sender = event.target as HTMLInputElement
             this.initialScaleShow = Number(sender.value)
         },
+        setFsAdaptationShow(event: Event) {
+            const sender = event.target as HTMLInputElement
+            this.fsAdaptationShow = Number(sender.value)
+        },
 
         restartapp() {
             const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
@@ -244,6 +261,10 @@ export default defineComponent({
             if (reader) {
                 reader.send('win:relaunch')
             }
+        },
+        
+        isMobile() {
+            return getDeviceType() === 'Android' || getDeviceType() === 'iOS'
         }
     },
     mounted() {
@@ -252,6 +273,7 @@ export default defineComponent({
             () => runtimeData.sysConfig,
             () => {
                 this.initialScaleShow = toRaw(runtimeData.sysConfig.initial_scale)
+                this.fsAdaptationShow = toRaw(runtimeData.sysConfig.fs_adaptation)
                 watch()
             }
         )

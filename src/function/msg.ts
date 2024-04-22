@@ -90,6 +90,7 @@ export function parse(str: string) {
                 switch (msg.notice_type) {
                     case 'friend': friendNotice(msg); break
                     case 'group_recall':
+                    case 'friend_recall':
                     case 'recall': revokeMsg(msg); break
                 }
                 break
@@ -150,7 +151,6 @@ function saveLoginInfo(msg: { [key: string]: any }) {
         runtimeData.loginInfo = data
         login.status = true
         // 显示账户菜单
-        updateMenu({ id: 'account', action: 'visible', value: true })
         updateMenu({ id: 'userName', action: 'label', value: data.nickname })
         // 结束登录页面的水波动画
         clearInterval(runtimeData.tags.loginWaveTimer)
@@ -436,34 +436,31 @@ function saveMemberInfo(msg: any) {
 function revokeMsg(msg: any) {
     const chatId = msg.notice_type.indexOf('group') >= 0 ? msg.group_id : msg.user_id
     const msgId = msg.message_id
-    // 当前窗口
-    if (Number(chatId) === Number(runtimeData.chatInfo.show.id)) {
-        // 寻找消息
-        let msgGet = null as { [key: string]: any } | null
-        let msgIndex = -1
-        runtimeData.messageList.forEach((item, index) => {
-            if (item.message_id === msgId) {
-                msgGet = item
-                msgIndex = index
-            }
-        })
-        if (msgGet !== null && msgIndex !== -1) {
-              runtimeData.messageList[msgIndex].revoke = true
-              if(runtimeData.messageList[msgIndex].sender.user_id != runtimeData.loginInfo.uin) {
-                runtimeData.messageList.splice(msgIndex, 1)
-              }
-            if (msgGet.sender.user_id !== runtimeData.loginInfo.uin) {
-                // 显示撤回提示
-                const list = runtimeData.messageList
-                if (msgIndex !== -1) {
-                    list.splice((msgIndex + 1), 0, msg)
-                } else {
-                    list.push(msg)
-                }
-            }
-        } else {
-            new Logger().error(app.config.globalProperties.$t('log_revoke_miss'))
+    // 寻找消息
+    let msgGet = null as { [key: string]: any } | null
+    let msgIndex = -1
+    runtimeData.messageList.forEach((item, index) => {
+        if (item.message_id === msgId) {
+            msgGet = item
+            msgIndex = index
         }
+    })
+    if (msgGet !== null && msgIndex !== -1) {
+        runtimeData.messageList[msgIndex].revoke = true
+        if (runtimeData.messageList[msgIndex].sender.user_id != runtimeData.loginInfo.uin) {
+            runtimeData.messageList.splice(msgIndex, 1)
+        }
+        if (msgGet.sender.user_id !== runtimeData.loginInfo.uin) {
+            // 显示撤回提示
+            const list = runtimeData.messageList
+            if (msgIndex !== -1) {
+                list.splice((msgIndex + 1), 0, msg)
+            } else {
+                list.push(msg)
+            }
+        }
+    } else {
+        new Logger().error(app.config.globalProperties.$t('log_revoke_miss'))
     }
     // 尝试撤回通知
     const notificationIndex = notificationList.findIndex((item) => {
@@ -620,7 +617,7 @@ function newMsg(data: any) {
         const id = info.group_id ?? info.private_id
         const loginId = runtimeData.loginInfo.uin
         const showId = runtimeData.chatInfo.show.id
-        // const sender = info.sender
+        const sender = info.sender
 
         // TODO：有点 BUG 但是暂时不知道为什么
         // 消息回调检查
@@ -686,8 +683,8 @@ function newMsg(data: any) {
         if (data.sub_type === 'group') {
             data.sender.nickname = data.sender.user_id
         }
-        // ((发送者不是群组 && 发送者不是自己) || 群组 AT || 群组 AT 全体 || 打开了通知全部消息) 这些情况需要进行新消息处理
-        if ((data.user_id != loginId && data.message_type !== 'group') || data.atme || data.atall || Option.get('notice_all') === true) {
+        // (发送者不是自己 && (发送者不是群组 || 群组 AT || 群组 AT 全体 || 打开了通知全部消息)) 这些情况需要进行新消息处理
+        if (sender != loginId && ( data.message_type !== 'group' || data.atme || data.atall || Option.get('notice_all') === true)) {
             // (发送者没有被打开 || 窗口被最小化) 这些情况需要进行消息通知
             if (id !== showId || document.hidden) {
                 // 检查通知权限，老旧浏览器不支持这个功能
@@ -713,7 +710,7 @@ function newMsg(data: any) {
                 if (data.sub_type === 'group') {
                     // 手动创建一个用户信息，因为临时消息的用户不在用户列表里
                     const user = {
-                        user_id: data.user_id,
+                        user_id: sender,
                         // 因为临时消息没有返回昵称
                         nickname: app.config.globalProperties.$t('chat_temp'),
                         remark: data.sender.user_id,

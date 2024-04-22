@@ -59,7 +59,7 @@
   "chat_space": "選取聯絡人來開始聊天",
   "chat_unsupported_msg": "（不支援的訊息類型）",
   "chat_view_pic": "檢視圖片",
-  "description": "一個與 oicq-http 相容的非官方網頁版 QQ 用戶端",
+  "description": "一個與 OneBot 相容的非官方網頁版 QQ 用戶端",
   "friend_title": "聯絡人",
   "home_card_address": "連線位址",
   "home_card_auto_con": "自動連線",

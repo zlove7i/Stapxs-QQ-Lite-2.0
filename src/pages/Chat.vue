@@ -244,11 +244,11 @@
                 <div>
                     <template v-for="(msg, index) in mergeList"
                         :key="'merge-' + index">
-                        <!-- <NoticeBody
+                        <NoticeBody
                             v-if="isShowTime((mergeList[index - 1] ? mergeList[index - 1].time : undefined), msg.time, index == 0)"
                             :key="'notice-time-' + index"
                             :data="{sub_type: 'time', time: msg.time}">
-                        </NoticeBody> -->
+                        </NoticeBody>
                         <!-- 合并转发消息忽略是不是自己的判定 -->
                         <MsgBody :data="msg" :type="'merge'"></MsgBody>
                     </template>
@@ -288,7 +288,7 @@
                     <div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M511.1 63.1v287.1c0 35.25-28.75 63.1-64 63.1h-144l-124.9 93.68c-7.875 5.75-19.12 .0497-19.12-9.7v-83.98h-96c-35.25 0-64-28.75-64-63.1V63.1c0-35.25 28.75-63.1 64-63.1h384C483.2 0 511.1 28.75 511.1 63.1z"/></svg></div>
                     <a>{{ $t('chat_msg_menu_reply') }}</a>
                 </div>
-                <div @click="tags.showForwardPan = true" v-show="tags.menuDisplay.forward">
+                <div @click="showForWard()" v-show="tags.menuDisplay.forward">
                    <div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M503.7 226.2l-176 151.1c-15.38 13.3-39.69 2.545-39.69-18.16V272.1C132.9 274.3 66.06 312.8 111.4 457.8c5.031 16.09-14.41 28.56-28.06 18.62C39.59 444.6 0 383.8 0 322.3c0-152.2 127.4-184.4 288-186.3V56.02c0-20.67 24.28-31.46 39.69-18.16l176 151.1C514.8 199.4 514.8 216.6 503.7 226.2z"/></svg></div>
                    <a>{{ $t('chat_msg_menu_forward') }}</a>
                 </div>
@@ -395,7 +395,7 @@ import FacePan from '@/components/FacePan.vue'
 import imageCompression from 'browser-image-compression'
 import jp from 'jsonpath'
 
-import { defineComponent, markRaw } from 'vue'
+import { defineComponent, markRaw, toRaw } from 'vue'
 import { downloadFile, loadHistory as loadHistoryFirst } from '@/function/utils/appUtil'
 import { getTrueLang } from '@/function/utils/systemUtil'
 import { getMsgRawTxt, parseJSONCQCode } from '@/function/utils/msgUtil'
@@ -887,6 +887,19 @@ export default defineComponent({
             })
         },
 
+        showForWard() {
+            this.tags.showForwardPan = true
+            const showList = toRaw(runtimeData.onMsgList).reverse()
+            // 将 forWardList 中 showList 之中的条目挪到最前面
+            showList.forEach((item) => {
+                const index = this.forwardList.indexOf(item)
+                if (index > -1) {
+                    this.forwardList.splice(index, 1)
+                    this.forwardList.unshift(item)
+                }
+            })
+        },
+
         /**
          * 转发消息
          */
@@ -922,13 +935,7 @@ export default defineComponent({
                             master: true,
                             fun: () => {
                                 let msgSend = msg.message
-                                if(runtimeData.tags.msgType == BotMsgType.CQCode) {
-                                    msgSend = parseJSONCQCode(msgSend)
-                                }
-                                switch (type) {
-                                    case 'group': Connector.send('send_group_msg', { 'group_id': id, 'message': msgSend }, 'sendMsgBack_forward'); break
-                                    case 'user': Connector.send('send_private_msg', { 'user_id': id, 'message': msgSend }, 'sendMsgBack_forward'); break
-                                }
+                                this.sendMsgRaw(msgSend)
                                 runtimeData.popBoxList.shift()
                             }
                         }
@@ -1313,6 +1320,16 @@ export default defineComponent({
             //                     ^^^^^^^ 0 ^^^^^^^   ^^^^^^^^^^ 1 ^^^^^^^^^^
             // 在发送操作触发之后，将会解析此条字符串排列出最终需要发送的消息结构用于发送。
             let msg = SendUtil.parseMsg(this.msg, this.sendCache, this.imgCache)
+            this.sendMsgRaw(msg)
+            // 发送后事务
+            this.msg = ''
+            this.sendCache = []
+            this.imgCache = []
+            this.scrollBottom()
+            this.cancelReply()
+        },
+
+        sendMsgRaw(msg: string | { type: string; text: string; }[] | undefined) {
             // 检查消息体是否需要处理
             const messageType = runtimeData.jsonMap.message_list.type.split('|')[0]
             switch (messageType) {
@@ -1369,12 +1386,6 @@ export default defineComponent({
                     }
                 }
             }
-            // 发送后事务
-            this.msg = ''
-            this.sendCache = []
-            this.imgCache = []
-            this.scrollBottom()
-            this.cancelReply()
         },
 
         updateList(newLength: number, oldLength: number) {

@@ -174,7 +174,6 @@ export function regIpcListener() {
                 }, {
                     id: 'account',
                     label: args.account,
-                    visible: false,
                     submenu: [
                         { id: 'userName', label: '' },
                         { type: 'separator' },

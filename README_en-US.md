@@ -10,7 +10,7 @@
   <h2 align="center" style="font-weight: 600">Stapxs QQ Lite 2.0</h2>
 
   <p align="center">
-    An unofficial web QQ client compatible with oicq-http2
+    An unofficial web QQ client compatible with OneBot
     <br />
     <a href="https://stapxs.github.io/Stapxs-QQ-Lite-2.0/" target="blank"><strong>🌎 Live Demo</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://github.com/Stapxs/Stapxs-QQ-Lite-2.0/releases" target="blank"><strong>📦️ Downloads</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;

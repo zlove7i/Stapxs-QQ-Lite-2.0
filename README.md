@@ -9,7 +9,7 @@
   <h2 align="center" style="font-weight: 600">Stapxs QQ Lite 2.0</h2>
 
   <p align="center">
-    一个兼容 oicq-http2 的非官方网页 QQ 客户端
+    一个兼容 OneBot 的非官方网页 QQ 客户端
     <br />
     <a href="https://stapxs.github.io/Stapxs-QQ-Lite-2.0/" target="blank"><strong>🌎 访问 DEMO</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://github.com/Stapxs/Stapxs-QQ-Lite-2.0/releases" target="blank"><strong>📦️ 下载程序</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;

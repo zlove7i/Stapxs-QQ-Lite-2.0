@@ -45,7 +45,8 @@ export interface RunTimeDataElem {
             master?: boolean,               // 是否高亮（主按钮）
             fun?: (value: any) => void,     // 按钮回调
             text: string                    // 按钮文本
-        }[]
+        }[],
+        allowQuickClose?: boolean,      // 是否允许快速关闭
     }[]
 }
 

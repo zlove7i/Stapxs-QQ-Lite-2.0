@@ -31,6 +31,7 @@ export interface ContributorElem {
     link: string,
     title: string
     isMe: boolean
+    isSuperThakns: boolean
 }
 
 export interface NotificationElem {

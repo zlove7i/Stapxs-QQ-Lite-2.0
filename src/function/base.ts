@@ -102,6 +102,16 @@ export class PopInfo {
             popList.splice(index, 1)
         }
     }
+
+    /**
+     * 清空所有消息
+     */
+    clear() {
+        // 因为消息是有动画的，所以需要延迟清空
+        setTimeout(() => {
+            popList.splice(0, popList.length)
+        }, 300)
+    }
 }
 
 export const popList: PopInfoElem[] = reactive([])

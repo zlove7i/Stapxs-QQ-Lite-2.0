@@ -33,7 +33,7 @@ module.exports = {
             maskIcon: 'img/icons/icon-maskable.png'
         },
         manifestOptions: {
-            description: "一个兼容 oicq-http 的非官方网页版 QQ 客户端，使用 Vue 重制的全新版本。",
+            description: "一个兼容 OneBot 的非官方网页版 QQ 客户端，使用 Vue 重制的全新版本。",
             icons: [
                 {
                     "src": "img/icons/icon.svg",
@@ -84,7 +84,7 @@ module.exports = {
                     target: process.env.NODEJS_ENV === 'github-actions' ? ['AppImage', 'tar.gz'] : 'pacman',
                     maintainer: 'Stapx Steve [林槐]',
                     vendor: 'Stapxs Steve Team',
-                    synopsis: '一个兼容 oicq-http 的非官方网页版 QQ 客户端。',
+                    synopsis: '一个兼容 OneBot 的非官方网页版 QQ 客户端。',
                     category: 'Network',
                     // TODO: 将来可能需要占用 QQ 自己的 MIME 类型
                     mimeTypes: ['application/x-stapxs-qq-lite'],
@@ -92,7 +92,7 @@ module.exports = {
                         Type: 'Application',
                         Name: 'Stapxs QQ Lite',
                         GenericName: 'Stapxs QQ Lite Electron 客户端',
-                        Comment: '一个兼容 oicq-http 的非官方网页版 QQ 客户端。',
+                        Comment: '一个兼容 OneBot 的非官方网页版 QQ 客户端。',
                         Terminal: 'false',
                         Category: 'Application',
                         Icon: 'stapxs-qq-lite'
