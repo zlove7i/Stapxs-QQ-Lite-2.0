@@ -27,6 +27,7 @@ export interface RunTimeDataElem {
         },
         loginWaveTimer?: any,
         isElectron: boolean,
+        platform: string | undefined,
         connectSsl: boolean,
         classes: any[]
     },

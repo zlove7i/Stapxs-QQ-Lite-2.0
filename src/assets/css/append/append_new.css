@@ -1,0 +1,214 @@
+.ss-button {
+    height: 35px;
+    font-size: 0.8rem;
+}
+
+.main-body > ul {
+    min-width: 45px;
+}
+.main-body > ul > li {
+    line-height: 30px;
+    min-width: 50px;
+    padding: 0;
+}
+.main-body > ul > li > svg,
+.main-body > ul > li.layui-this > svg {
+    width: 15px;
+    height: 15px;
+    padding: 10px;
+}
+.login-pan-card {
+    max-width: 250px;
+}
+.login-pan-card > svg {
+    width: 20%;
+}
+.login-pan-card p {
+    font-size: 0.9rem;
+}
+.login-pan-card label > input {
+    height: 30px;
+    font-size: 0.8rem;
+}
+.login-pan-card a {
+    font-size: 0.7rem;
+}
+.login-pan-card button {
+    height: 30px;
+    width: 95%;
+}
+
+.friend-list {
+    width: 220px;
+}
+.friend-list > div:first-child > div.base {
+    color: var(--color-font);
+    padding-bottom: 0;
+    background: none;
+}
+.friend-list > div:first-child > div.base > span {
+    font-weight: bold;
+}
+.friend-list > div:first-child > div > svg {
+    fill: var(--color-font);
+}
+.friend-list > div:first-child label {
+    margin-top: 10px;
+    height: 30px;
+    font-size: 0.8rem;
+    background: var(--color-card-2);
+    border-bottom: 1px solid var(--color-font-2);
+    border-radius: 7px;
+    opacity: 0.7;
+}
+.friend-list > div:first-child label > input::placeholder {
+    color: var(--color-font-1);
+}
+
+.friend-body {
+    margin-bottom: 5px;
+    margin-top: 0;
+}
+.friend-body img {
+    height: 30px;
+    width: 30px;
+}
+.friend-body > div p {
+    font-size: 0.8rem;
+}
+.friend-body > div > div a {
+    font-size: 0.75rem;
+}
+.friend-body:hover {
+    background: transparent !important;
+}
+.friend-body > div:nth-child(1) {
+    transition: transform .3s, margin .3s;
+    margin-left: -13px;
+}
+.friend-body > div:nth-child(1).new {
+    margin-left: 3px;
+}
+
+.chat-pan {
+    left: 270px;
+}
+.chat-pan > div.info {
+    padding: 10px;
+    width: calc(100% - 50px);
+}
+.chat-pan > div.info > div.info p {
+    font-size: 0.9rem;
+}
+.chat-pan > div.info > div.info span {
+    font-size: 0.75rem;
+}
+.chat-pan > div.info > img {
+    width: 40px;
+    height: 40px;
+}
+.chat-pan > div.chat {
+    margin-top: -80px;
+}
+.chat-pan > div.info > div.more {
+    width: 35px;
+    height: 35px;
+    margin-right: 5px;
+}
+.chat-pan > div.info > div.more > svg {
+    width: 15px;
+    height: 15px;
+}
+.chat-pan > div.more > div:nth-child(2) > div:first-child {
+    width: 40px;
+    height: 40px;
+}
+.chat-pan > div.more > div:nth-child(2) > div:first-child > svg {
+    margin: 12.5px;
+    height: 15px;
+    width: 15px;
+}
+.chat-pan > div.more > div:nth-child(2) > div:nth-child(2) {
+    height: 40px;
+}
+.chat-pan > div.more > div:nth-child(2) > div > div {
+    min-height: 15px;
+    min-width: 15px;
+}
+.chat-pan > div.more > div:nth-child(2) > div > div > svg {
+    width: 15px;
+    height: 15px;
+    margin: 7px;
+}
+
+.message > img {
+    width: 30px;
+    height: 30px;
+}
+.message-body > a {
+    font-size: 0.8rem;
+
+}
+.message-body > div {
+    font-size: 0.9rem;
+}
+
+.opt-main > div:first-child {
+    width: 250px;
+}
+
+.logo-card {
+    padding: 30px 15px 15px 15px;
+}
+.logo-card>svg {
+    width: 70px;
+}
+.logo-card>div>span {
+    font-size: 1.1rem;
+}
+.logo-card>span {
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+.logo-card>a {
+    font-size: 0.7rem;
+}
+.contributors-card>div>div {
+    min-width: 25px;
+    min-height: 25px;
+}
+.contributors-card {
+    width: calc(100% - 20px);
+}
+.buttons > a {
+    height: 35px;
+    font-size: 0.75rem;
+}
+.buttons > a:last-child {
+    width: 35px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bcd-about>div>div {
+    height: 15px;
+}
+.logo-card>div,
+.opt-main > div:first-child>div:not(:first-child) {
+    margin-top: 10px;
+}
+
+.end-card {
+    margin: 10px 10px 40px 10px;
+    padding: 15px 20px;
+}
+.end-card>div>div>span {
+    font-size: 0.9rem;
+}
+.end-card>div>div {
+    margin-bottom: 0;
+}
+.end-card>svg {
+    width: 40px !important;
+    height: 40px !important;
+}

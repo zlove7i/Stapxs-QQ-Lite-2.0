@@ -27,6 +27,7 @@
             </div>
         </template>
     </TransitionGroup>
+    <div v-if="platform == 'darwin'" class="controller mac-controller"></div>
     <div id="base-app">
         <div class="layui-tab layui-tab-brief main-body">
             <ul class="layui-tab-title" :style="get('fs_adaptation') > 0 ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
@@ -167,7 +168,7 @@
         <Transition>
             <div class="pop-box" v-if="runtimeData.popBoxList.length > 0">
                 <div :class="'pop-box-body ss-card' + (runtimeData.popBoxList[0].full ? ' full' : '') + (get('option_view_no_window') == true ? '' : ' window')"
-                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px));' + (get('fs_adaptation') != undefined ? ` margin-bottom: ${40 + Number(get('fs_adaptation'))}px;` : '')">
+                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px));' + (get('fs_adaptation') > 0 ? ` margin-bottom: ${40 + Number(get('fs_adaptation'))}px;` : '')">
                     <header v-show="runtimeData.popBoxList[0].title != undefined">
                         <div
                             v-if="runtimeData.popBoxList[0].svg != undefined"
@@ -251,6 +252,7 @@ export default defineComponent({
     data () {
         return {
             dev: process.env.NODE_ENV == 'development',
+            platform: undefined,
             Connector: Connector,
             defineAsyncComponent: defineAsyncComponent,
             save: Option.runASWEvent,
@@ -442,9 +444,24 @@ export default defineComponent({
         const logger = new Logger()
         window.moYu = () => { return 'undefined' }
         // 页面加载完成后
-        window.onload = () => {
+        window.onload = async () => {
             createMenu()
             createIpc()
+            // 初始化平台信息
+            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+            const reader = electron ? electron.ipcRenderer : null
+            if (reader) {
+                this.platform = await reader.invoke('sys:getPlatform')
+                runtimeData.tags.platform = this.platform
+            }
+            if(this.platform == 'darwin') {
+                import('@/assets/css/append/append_mac.css').then(() => {
+                    logger.debug('macOS 附加样式加载完成')
+                })
+            }
+            import('@/assets/css/append/append_new.css').then(() => {
+                logger.debug('测试 UI 附加样式加载完成')
+            })
             // 加载开发者相关
             if (process.env.NODE_ENV == 'development') {
                 document.title = 'Stapxs QQ Lite (Dev)'
