@@ -6,6 +6,14 @@ html, body {
     margin: 0;
 }
 
+.mac-controller {
+    -webkit-app-region: drag;
+    z-index: 100;
+    position: absolute;
+    width: 100%;
+    height: 30px;
+}
+
 .top-bar {
     -webkit-app-region: drag;
     box-shadow: 0 0 10px 0 rgb(0 0 0 / 28%);
@@ -117,7 +125,6 @@ html, body {
 }
 
 #app, #base-app {
-    background-color: var(--color-bg);
     height: 100%;
 }
 #base-app.withBar {
@@ -137,7 +144,7 @@ html, body {
     display: flex;
     height: 100%;
     border: none;
-    width: 75px;
+    min-width: 75px;
 }
 .main-body > ul > li {
     padding: 0 3px;
@@ -171,6 +178,7 @@ html, body {
 }
 
 .home-body {
+    background: var(--color-bg);
     justify-content: center;
     flex-direction: row;
     align-items: center;
@@ -198,6 +206,7 @@ html, body {
 .login-pan-card label {
     background: var(--color-card-1);
     width: calc(100% - 42px);
+    align-items: center;
     transition: all .3s;
     border-radius: 50px;
     margin-top: 10px;
@@ -222,6 +231,7 @@ html, body {
 .login-pan-card label > svg {
     fill: var(--color-font);
     transition: fill .3s;
+    height: 15px;
     width: 15px;
 }
 .login-pan-card label.default {
@@ -376,6 +386,9 @@ html, body {
 .friend-list > div:last-child.open > div.active {
     background: var(--color-main) !important;
     color: var(--color-font-r) !important;
+}
+.friend-list-space {
+    background: var(--color-bg);
 }
 
 .friend-body {
@@ -651,7 +664,7 @@ html, body {
 }
 .pop-box-body {
     transform: translate(-50%, -50%);
-    margin-top: calc(50vh - 35px);
+    margin-top: 50vh;
     transition: all .3s;
     position: absolute;
     width: fit-content;
@@ -1009,11 +1022,12 @@ html, body {
         height: calc(100% - 75px);
     }
     .main-body > ul {
+        padding-top: 0 !important;
         justify-content: center;
+        height: 75px !important;
         align-items: center;
         flex-direction: row;
-        height: 75px;
-        width: 100%;
+        min-width: 100% !important;
         z-index: 20;
     }
     .main-body > ul > li {
@@ -1030,7 +1044,7 @@ html, body {
     /* 二级侧栏 */
     .friend-list {
         transition: width .3s;
-        width: 80px;
+        width: 80px !important;
     }
     .friend-list.open {
         width: 300px !important;

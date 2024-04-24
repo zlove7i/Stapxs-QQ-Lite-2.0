@@ -218,7 +218,6 @@ export class MsgBodyFuns {
             switch(type) {
                 case 'forward': {
                     // 解析合并转发消息
-                    popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_get_forward'))
                     this.getForwardMsg(sender.dataset.id)
                     break
                 }
@@ -228,8 +227,8 @@ export class MsgBodyFuns {
 
     static getForwardMsg(id: any) {
         if (id !== 'undefined') {
+            runtimeData.mergeMessageList = []
             Connector.send(runtimeData.jsonMap.forward_msg.name, { id: id }, 'getForwardMsg')
-            popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_get_forward'))
         } else {
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_chat_forward_toooomany'))
         }

@@ -25,6 +25,18 @@
     border-radius: 7px;
     margin: 10px 15px 0 0;
 }
+.message > div.sending {
+    width: 15px;
+    height: auto;
+    display: flex;
+    align-items: flex-end;
+    margin-left: 10px;
+    margin-bottom: 3px;
+}
+.message > div.sending > svg {
+    animation: rotate 1.5s linear infinite;
+    fill: var(--color-main);
+}
 
 .message-body {
     color: var(--color-font);
@@ -160,10 +172,19 @@
 .msg-face-svg.me {
     fill: var(--color-font-1-r);
 }
-
-.msg-unknow {
-    color: var(--color-font-2) !important;
-    font-style: italic;
+.msg-face-long > span {
+    display: inline-block;
+    margin: 5px 0;
+}
+.msg-face-long > span:nth-child(odd) {
+    transform: translateY(5px);
+}
+.msg-face-long > span:nth-child(even) {
+    transform: translateY(-5px);
+}
+.msg-face-long > span:nth-child(3n) {
+    opacity: 0;
+    width: 8px;
 }
 
 .msg-at {

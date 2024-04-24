@@ -10,7 +10,7 @@
         <AboutPan :showUI="true"></AboutPan>
         <div>
             <div class="layui-tab layui-tab-brief"
-                style="display: flex;flex-direction: column;margin: 0;overflow: hidden;height: 100%;">
+                style="display: flex;flex-direction: column;margin: 0;overflow: hidden;height: 100%;padding: 10px;">
                 <span class="opt-title">{{ $t('option_title') }}</span>
                 <ul class="layui-tab-title opt-tab ss-card">
                     <li class="layui-this">{{ $t('option_bar_account') }}</li>

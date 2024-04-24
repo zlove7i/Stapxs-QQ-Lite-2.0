@@ -29,6 +29,7 @@ const optDefault: { [key: string]: any } = {
     log_level: 'err',
     open_ga_bot: true,
     initial_scale: 0.85,
+    fs_adaptation: 0,
     theme_color: 0,
     chat_background_blur: 0
 }

@@ -12,7 +12,7 @@
 import qed from '@/assets/qed.txt'
 
 import app from '@/main'
-import Option from './option'
+import Option, { run } from './option'
 import xss from 'xss'
 import pinyin from 'pinyin'
 
@@ -292,6 +292,23 @@ function saveMsg(msg: any, append = undefined as undefined | string) {
                 runtimeData.messageList = list
             }
         }
+        // 将消息列表的最后一条 raw_message 保存到用户列表中
+        const lastMsg = runtimeData.messageList[runtimeData.messageList.length - 1]
+        if (lastMsg) {
+            const user = runtimeData.userList.find((item) => {
+                return item.group_id == runtimeData.chatInfo.show.id ||
+                    item.user_id == runtimeData.chatInfo.show.id
+            })
+            if (user) {
+                if(runtimeData.chatInfo.show.type == 'group') {
+                    user.raw_msg = lastMsg.sender.nickname + ': ' + getMsgRawTxt(lastMsg.message)
+                } else {
+                    user.raw_msg = getMsgRawTxt(lastMsg.message)
+                }
+                user.time = lastMsg.time
+            }
+        }
+            
     }
 }
 
@@ -344,6 +361,16 @@ function showSendedMsg(msg: any, echoList: string[]) {
         if(echoList[1] == 'forward') {
             // PS：这儿写是写了转发成功，事实上不确定消息有没有真的发送出去（x
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('chat_chat_forward_success'))
+        } else if(echoList[1] == 'uuid') {
+            const messageId = echoList[2]
+            // 去 messagelist 里找到这条消息
+            runtimeData.messageList.forEach((item) => {
+                if(item.message_id == messageId) {
+                    item.message_id = msg.message_id
+                    item.fake_msg = false
+                    return
+                }
+            })
         }
     }
 }
@@ -358,21 +385,27 @@ function saveSendedMsg(echoList: string[], data: any) {
         if (Number(echoList[2]) <= 5 && msgData && msgInfoData) {
             const msg = msgData[0]
             const msgInfo = msgInfoData[0]
-            // // 防止重试过程中切换聊天
-            if (msgInfo.group_id == runtimeData.chatInfo.show.id ||
-                msgInfo.private_id == runtimeData.chatInfo.show.id) {
-                if (echoList[1] !== msgInfo.message_id.toString()) {
-                    // 返回的不是这条消息，重新请求
-                    // popInfo.add(PopType.ERR,
-                    //     app.config.globalProperties.$t('pop_chat_get_msg_err') + ' ( A' + echoList[2] + ' )')
-                    setTimeout(() => {
-                        Connector.send(
-                            runtimeData.jsonMap.get_message.name ?? 'get_msg',
-                            { 'message_id': echoList[1] },
-                            'getSendMsg_' + echoList[1] + '_' + (Number(echoList[2]) + 1)
-                        )
-                    }, 5000)
-                } else {
+            if (echoList[1] !== msgInfo.message_id.toString()) {
+                // 返回的不是这条消息，重新请求
+                // popInfo.add(PopType.ERR,
+                //     app.config.globalProperties.$t('pop_chat_get_msg_err') + ' ( A' + echoList[2] + ' )')
+                setTimeout(() => {
+                    Connector.send(
+                        runtimeData.jsonMap.get_message.name ?? 'get_msg',
+                        { 'message_id': echoList[1] },
+                        'getSendMsg_' + echoList[1] + '_' + (Number(echoList[2]) + 1)
+                    )
+                }, 5000)
+            } else {
+                // 去消息列表里找这条消息，如果有的话删掉它
+                runtimeData.messageList.forEach((item, index) => {
+                    if (item.message_id == msgInfo.message_id) {
+                        runtimeData.messageList.splice(index, 1)
+                    }
+                })
+                // 防止重试过程中切换聊天
+                if (msgInfo.group_id == runtimeData.chatInfo.show.id ||
+                    msgInfo.private_id == runtimeData.chatInfo.show.id) {
                     saveMsg(buildMsgList([msg]), 'bottom')
                 }
             }
@@ -618,13 +651,35 @@ function newMsg(data: any) {
         const loginId = runtimeData.loginInfo.uin
         const showId = runtimeData.chatInfo.show.id
         const sender = info.sender
-
-        // TODO：有点 BUG 但是暂时不知道为什么
+        
         // 消息回调检查
         // PS：如果在新消息中获取到了自己的消息，则自动打开“停止消息回调”设置防止发送的消息重复
-        // if (Option.get('send_reget') !== true && sender === loginId) {
-        //     Option.save('send_reget', true)
-        // }
+        if (Option.get('send_reget') !== true && sender === loginId) {
+            Option.save('send_reget', true)
+        }
+
+        // 列表内最近的一条 fake_msg（倒序查找）
+        let fakeIndex = -1
+        for(let i=runtimeData.messageList.length - 1; i>0; i--) {
+            const msg = runtimeData.messageList[i]
+            if(msg.fake_msg && sender == loginId) {
+                fakeIndex = i
+                break
+            }
+        }
+        // 预发送消息刷新
+        if(fakeIndex != -1) {
+            // 将这条消息直接替换掉
+            let trueMsg = getMsgData('message_list', buildMsgList([data]), msgPath.message_list)
+            trueMsg = getMessageList(trueMsg)
+            if(trueMsg && trueMsg.length == 1) {
+                runtimeData.messageList[fakeIndex].message = trueMsg[0].message
+                runtimeData.messageList[fakeIndex].fake_msg = undefined
+                runtimeData.messageList[fakeIndex].revoke = false
+            }
+            return
+        }
+
         // 显示消息
         if (id === showId || info.target_id == showId) {
             // 保存消息
@@ -958,6 +1013,7 @@ const baseRuntime = {
         viewer: { index: 0 },
         msgType: BotMsgType.JSON,
         isElectron: false,
+        platform: undefined,
         connectSsl: false,
         classes: []
     },
@@ -979,7 +1035,7 @@ const baseRuntime = {
     },
     userList: [],
     showList: [],
-    systemNoticesList: [],
+    systemNoticesList: undefined,
     onMsgList: [],
     loginInfo: {},
     botInfo: {},

@@ -36,7 +36,7 @@
                     <li icon="fa-solid fa-check-to-slot" id="readed">{{ $t('list_menu_readed') }}</li>
                 </ul>
             </BcMenu>
-            <div id="message-list-body" :class="(runtimeData.tags.openSideBar ? 'open' : '')" style="overflow: scroll;">
+            <div id="message-list-body" :class="(runtimeData.tags.openSideBar ? 'open' : '')" style="overflow-y: scroll;">
                 <!-- 系统信息 -->
                 <FriendBody key="inMessage--10000"
                     v-if="runtimeData.systemNoticesList && Object.keys(runtimeData.systemNoticesList).length > 0"

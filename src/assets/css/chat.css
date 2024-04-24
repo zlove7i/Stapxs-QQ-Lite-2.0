@@ -382,6 +382,27 @@ textarea {
     overflow-y: scroll;
     flex: 1;
 }
+.merge-pan .loading {
+    transform: translateY(50%);
+    flex-direction: column;
+    align-items: center;
+    display: none;
+    height: 100%;
+    width: 100%;
+}
+.merge-pan .loading > svg {
+    animation: rotate 1.5s linear infinite;
+    fill: var(--color-main);
+    width: 2rem;
+}
+.merge-pan .loading > span {
+    color: var(--color-main);
+    margin-top: 10px;
+}
+.merge-pan .loading.show {
+    display: flex;
+
+}
 
 .mumber-info {
     position: absolute;
@@ -1292,7 +1313,7 @@ textarea {
     /* 消息面板 */
     .chat-pan {
         height: calc(100% - 75px);
-        left: 80px;
+        left: 80px !important;
     }
     .chat-pan.withBar {
         height: calc(100% - 115px);
@@ -1391,7 +1412,7 @@ textarea {
     }
     /* 聊天面板（二级侧栏） */
     .chat-pan {
-        left: 0;
+        left: 0 !important;
     }
     .chat-pan.open {
         transform: translateX(100%);

@@ -70,7 +70,11 @@ async function createWindow() {
 
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         if (details.responseHeaders) {
-            if(details.url.startsWith('https://multimedia.nt.qq.com.cn/download')) {
+            const imageAddress = [
+                'https://gchat.qpic.cn/gchatpic_new',
+                'https://multimedia.nt.qq.com.cn/download'
+            ]
+            if(imageAddress.some((address) => details.url.startsWith(address))) {
                 // 给这个域名添加文件名头
                 const contentType = details.responseHeaders['content-type']
                 if(contentType && contentType[0]) {

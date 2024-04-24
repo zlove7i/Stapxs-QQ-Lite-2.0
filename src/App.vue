@@ -29,7 +29,7 @@
     </TransitionGroup>
     <div id="base-app">
         <div class="layui-tab layui-tab-brief main-body">
-            <ul class="layui-tab-title" :style="get('fs_adaptation') != undefined ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
+            <ul class="layui-tab-title" :style="get('fs_adaptation') > 0 ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
                 <li @click="changeTab('主页', 'Home', true)" :class="loginInfo.status ? 'hiden-home' : 'layui-this'">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">>
                         <path
@@ -57,7 +57,7 @@
                     </svg>
                 </li>
             </ul>
-            <div class="layui-tab-content" :style="get('fs_adaptation') != undefined ? `height: calc(100% - ${75 + Number(get('fs_adaptation'))}px);` : ''">
+            <div class="layui-tab-content" :style="get('fs_adaptation') > 0 ? `height: calc(100% - ${75 + Number(get('fs_adaptation'))}px);` : ''">
                 <div :class="!loginInfo.status ? 'layui-tab-item layui-show' : 'layui-tab-item'"
                     :name="$t('home_title')">
                     <div class="home-body">
@@ -150,7 +150,7 @@
           v-show="tags.showChat"
           :is="runtimeData.pageView.chatView"
           :mumberInfo="runtimeData.chatInfo.info.now_member_info == undefined ? {} : runtimeData.chatInfo.info.now_member_info"
-          :mergeList="runtimeData.mergeMessageList == undefined ? [] : runtimeData.mergeMessageList"
+          :mergeList="runtimeData.mergeMessageList"
           :list= runtimeData.messageList
           :chat="runtimeData.chatInfo"
           @userClick="changeChat">
@@ -351,7 +351,7 @@ export default defineComponent({
                     jin_info: { data: { msg_list: [] } }
                 }
             }
-            runtimeData.mergeMessageList = []           // 清空合并转发缓存
+            runtimeData.mergeMessageList = undefined    // 清空合并转发缓存
             runtimeData.tags.canLoadHistory = true      // 重置终止加载标志
             if (data.type == 'group') {
                 // 获取自己在群内的资料

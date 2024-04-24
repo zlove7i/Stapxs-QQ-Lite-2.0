@@ -43,7 +43,7 @@
         <!-- 加载中指示器 -->
         <div :class="'loading' + (tags.nowGetHistroy && runtimeData.tags.canLoadHistory ? ' show': '')">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg>
-            <span>加载中</span>
+            <span>{{ $t('loading') }}</span>
         </div>
         <!-- 消息显示区 -->
         <div class="chat" @scroll="chatScroll" id="msgPan" style="scroll-behavior: smooth;">
@@ -227,7 +227,7 @@
             <div></div>
         </div>
         <!-- 合并转发消息预览器 -->
-        <div :class="mergeList.length > 0 ? 'merge-pan show' : 'merge-pan'">
+        <div :class="mergeList != undefined ? 'merge-pan show' : 'merge-pan'">
             <div @click="closeMergeMsg"></div>
             <div class="ss-card">
                 <div>
@@ -240,6 +240,10 @@
                         <path
                             d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
                     </svg>
+                </div>
+                <div :class="'loading' + ((mergeList && mergeList.length == 0) ? ' show': '')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg>
+                    <span>{{ $t('loading') }}</span>
                 </div>
                 <div>
                     <template v-for="(msg, index) in mergeList"
@@ -398,12 +402,13 @@ import jp from 'jsonpath'
 import { defineComponent, markRaw, toRaw } from 'vue'
 import { downloadFile, loadHistory as loadHistoryFirst } from '@/function/utils/appUtil'
 import { getTrueLang } from '@/function/utils/systemUtil'
-import { getMsgRawTxt, parseJSONCQCode } from '@/function/utils/msgUtil'
+import { getMsgRawTxt } from '@/function/utils/msgUtil'
 import { scrollToMsg } from '@/function/utils/appUtil'
 import { Logger, LogType, PopInfo, PopType } from '@/function/base'
 import { Connector, login as loginInfo } from '@/function/connect'
-import { runtimeData } from '@/function/msg'
+import { runtimeData} from '@/function/msg'
 import { BaseChatInfoElem, MsgItemElem, SQCodeElem, GroupMemberInfoElem, UserFriendElem, UserGroupElem, BotMsgType } from '@/function/elements/information'
+import { v4 as uuid } from 'uuid'
 
 export default defineComponent({
     name: 'ViewChat',
@@ -1330,6 +1335,28 @@ export default defineComponent({
         },
 
         sendMsgRaw(msg: string | { type: string; text: string; }[] | undefined) {
+            // 将消息构建为完整消息体先显示出去
+            const msgUUID = uuid()
+            let showMsg = {
+                revoke: true,
+                fake_msg: true,
+                message_id: msgUUID,
+                message_type: runtimeData.chatInfo.show.type,
+                time: parseInt(String(new Date().getTime() / 1000)),
+                post_type: "message",
+                sender: {
+                    user_id: runtimeData.loginInfo.uin,
+                    nickname: runtimeData.loginInfo.nickname
+                },
+                message: JSON.parse(JSON.stringify(msg)),
+                raw_message: this.$t('chat_msg_sending'),
+            } as {[key: string]: any}
+            if(showMsg.message_type == 'group') {
+                showMsg.group_id = runtimeData.chatInfo.show.id
+            } else {
+                showMsg.user_id = runtimeData.chatInfo.show.id
+            }
+            runtimeData.messageList = runtimeData.messageList.concat([showMsg])
             // 检查消息体是否需要处理
             const messageType = runtimeData.jsonMap.message_list.type.split('|')[0]
             switch (messageType) {
@@ -1370,17 +1397,17 @@ export default defineComponent({
                     case 'group': 
                         Connector.send(
                             runtimeData.jsonMap.message_list.name_group_send ?? 'send_group_msg',
-                            { 'group_id': this.chat.show.id, 'message': msg },'sendMsgBack'); break
+                            { 'group_id': this.chat.show.id, 'message': msg },'sendMsgBack_uuid_' + msgUUID); break
                     case 'user': 
                     {
                         if(this.chat.show.temp) {
                             Connector.send(
                                 runtimeData.jsonMap.message_list.name_temp_send ?? 'send_temp_msg', 
-                                { 'user_id': this.chat.show.id, 'group_id': this.chat.show.temp, 'message': msg }, 'sendMsgBack');
+                                { 'user_id': this.chat.show.id, 'group_id': this.chat.show.temp, 'message': msg }, 'sendMsgBack_uuid_' + msgUUID);
                         } else {
                             Connector.send(
                                 runtimeData.jsonMap.message_list.name_user_send ?? 'send_private_msg',
-                                 { 'user_id': this.chat.show.id, 'message': msg }, 'sendMsgBack');
+                                 { 'user_id': this.chat.show.id, 'message': msg }, 'sendMsgBack_uuid_' + msgUUID);
                         }
                         break
                     }
