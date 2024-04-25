@@ -43,6 +43,9 @@
     margin-left: 0;
 }
 
+.opt-main-tab.layui-show .opt-main > div:last-child {
+    margin-left: 0 !important;
+}
 .opt-main {
     background: rgba(var(--color-card-rgb), 0.6);
     padding-top: 30px;
@@ -50,15 +53,17 @@
     height: calc(100% - 10px);
 }
 .opt-main > div:first-child {
-    width: 285px;
+    width: 285px !important;
     margin-left: -25px;
 }
 .opt-main > div:last-child {
+    margin-left: -65px;
     background: var(--color-bg);
-    margin: -30px -25px 0 5px;
+    margin: -30px -5px 0 5px;
     height: calc(100% - 5px);
     padding: 33px 10px 0 10px;
     box-shadow: -5px 0px 4px -5px var(--color-shader);
+    transition: margin .3s;
 }
 
 .about-pan > div {

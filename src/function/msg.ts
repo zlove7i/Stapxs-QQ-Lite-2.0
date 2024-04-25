@@ -751,12 +751,8 @@ function newMsg(data: any) {
                     sendNotice(data)
                 }
                 // electron：在 windows 下对任务栏图标进行闪烁
-                if (runtimeData.tags.isElectron) {
-                    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-                    const reader = electron ? electron.ipcRenderer : null
-                    if (reader) {
-                        reader.send('win:flashWindow')
-                    }
+                if (runtimeData.reader) {
+                    runtimeData.reader.send('win:flashWindow')
                 }
             }
             // 如果发送者不在消息列表里，将它添加到消息列表里
@@ -870,12 +866,8 @@ function sendNotice(msg: any) {
                 // 跳转到这条消息的发送者页面
                 window.focus()
                 // electron：需要让 electron 拉起页面
-                if(runtimeData.tags.isElectron) {
-                    const electron = window.require('electron')
-                    const reader = electron.ipcRenderer
-                    if (reader) {
-                        reader.send('win:fouesWindow')
-                    }
+                if (runtimeData.reader) {
+                    runtimeData.reader.send('win:fouesWindow')
                 }
                 const body = document.getElementById('user-' + userId)
                 if (body === null) {

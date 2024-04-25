@@ -256,10 +256,8 @@ export default defineComponent({
         },
 
         restartapp() {
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:relaunch')
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:relaunch')
             }
         },
         

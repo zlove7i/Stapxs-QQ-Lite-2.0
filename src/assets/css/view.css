@@ -5,6 +5,10 @@ html, body {
     padding: 0;
     margin: 0;
 }
+input::placeholder {
+    color: var(--color-font-2);
+
+}
 
 .mac-controller {
     -webkit-app-region: drag;
@@ -319,13 +323,15 @@ html, body {
     margin: 15px;
 }
 .friend-list > div:first-child > div.base {
-    background: var(--color-main);
     border-radius: 7px 7px 0 0;
-    color: var(--color-font-r);
     align-items: center;
     font-size: 1rem;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
     display: flex;
+    color: var(--color-font);
+}
+.friend-list > div:first-child > div.base > span {
+    font-weight: bold;
 }
 .friend-list > div:first-child > div.base.only {
     border-radius: 7px;
@@ -347,18 +353,21 @@ html, body {
     flex: 1;
 }
 .friend-list > div:first-child > div > svg {
-    fill: var(--color-font-r);
+    fill: var(--color-font);
     cursor: pointer;
     opacity: 0.7;
     height: 1rem;
 }
 .friend-list > div:first-child label {
-    background: var(--color-card-2);
-    border-radius: 0 0 7px 7px;
     height: calc(1rem + 20px);
     align-items: center;
     display: flex;
     width: 100%;
+    margin-top: 10px;
+    background: var(--color-card-2);
+    border-bottom: 1px solid var(--color-font-2);
+    border-radius: 7px;
+    opacity: 0.7;
 }
 .friend-list > div:first-child label > svg {
     fill: var(--color-font-1);
@@ -442,15 +451,16 @@ html, body {
     border-radius: 4px;
     margin-right: 10px;
     transform: scaleY(0);
-    margin-left: 3px;
-    transition: transform .3s;
     display: unset !important;
+    transition: transform .3s, margin .3s;
+    margin-left: -13px;
 }
 .friend-body.active > div:nth-child(1) {
     background: var(--color-font);
 }
 .friend-body > div:nth-child(1).new {
     transform: scaleY(0.5);
+    margin-left: 3px;
 }
 .friend-body > div p {
     font-weight: bold;
@@ -500,6 +510,7 @@ html, body {
 }
 
 .msg-menu-body {
+    border: 1px solid var(--color-shader);
     background: rgba(var(--color-bg-rgb), 0.7);
     box-shadow: 0 0 5px var(--color-shader);
     backdrop-filter: blur(50px);
@@ -519,6 +530,7 @@ html, body {
 .msg-menu-body.show {
     transform: scaleY(1);
 }
+.menu div.item,
 .msg-menu-body > div {
     transition: background .3s;
     background: transparent;
@@ -527,14 +539,20 @@ html, body {
     padding: 3px 15px;
     cursor: pointer;
     display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
 }
 .msg-menu-body > div:hover {
     background: var(--color-main);
 }
+.menu div.item > svg {
+    margin-right: 0 !important;
+    height: 1rem;
+    width: 1rem !important;
+}
 .msg-menu-body > div > div > svg {
     fill: var(--color-font-1);
     transition: fill .3s;
-    margin-right: 10px;
     margin-top: 7px;
     height: 1rem;
     width: 1rem;

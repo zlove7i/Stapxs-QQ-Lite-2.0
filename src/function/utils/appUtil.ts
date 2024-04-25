@@ -57,7 +57,7 @@ export function openLink(url: string) {
                 {
                     text: app.config.globalProperties.$t('btn_open'),
                     fun: () => {
-                        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+                        const electron = window.require('electron')
                         const shell = electron ? electron.shell : null
                         if (shell) {
                             shell.openExternal(url)
@@ -169,7 +169,7 @@ export function downloadFile (url: string, name: string, onprocess: (event: Prog
             url = 'https' + url.substring(url.indexOf('://'))
         }
     }
-    if(!process.env.IS_ELECTRON) {
+    if(runtimeData.tags.isElectron) {
         new FileDownloader({
             url: url,
             autoStart: true,
@@ -183,13 +183,11 @@ export function downloadFile (url: string, name: string, onprocess: (event: Prog
             }
         })
     } else {
-        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-        const reader = electron ? electron.ipcRenderer : null
-        if (reader) {
-            reader.on('sys:downloadBack', (event, params) => {
+        if(runtimeData.reader) {
+            runtimeData.reader.on('sys:downloadBack', (event, params) => {
                 onprocess(params)
             })
-            reader.send('sys:download', {
+            runtimeData.reader.send('sys:download', {
                 downloadPath: url,
                 fileName: name
             })
@@ -272,27 +270,23 @@ function updateGTKTheme(cssStr: string) {
  */
 export async function loadSystemThemeColor() {
     // 加载 GTK 主题适配（以及主题更新回调监听）
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
+    if (runtimeData.reader) {
         // 主题更新回调
-        reader.on('sys:updateGTKTheme', (event, params) => {
+        runtimeData.reader.on('sys:updateGTKTheme', (event, params) => {
             if(option.get('opt_auto_gtk') == true) {
                 console.log('GTK 主题已更新：' + params.name)
                 updateGTKTheme(params.css)
             }
         })
-        updateGTKTheme(await reader.invoke('sys:getGTKTheme'))
+        updateGTKTheme(await runtimeData.reader.invoke('sys:getGTKTheme'))
         
     }
 }
 
 export async function loadWinColor() {
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
+    if (runtimeData.reader) {
         // 获取系统主题色
-        updateWinColor(await reader.invoke('sys:getWinColor'))
+        updateWinColor(await runtimeData.reader.invoke('sys:getWinColor'))
         
     }
 }
@@ -320,9 +314,7 @@ export function updateWinColor(info: any) {
 export function createMenu() {
     const { $t } = app.config.globalProperties
     // MacOS：初始化菜单
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
+    if (runtimeData.reader) {
         // 初始化菜单
         const menuTitles = {} as { [key: string]: string }
         menuTitles.success = $t('load_success', { name: $t('name')})
@@ -353,32 +345,28 @@ export function createMenu() {
         menuTitles.feedback = $t('menu_feedback')
         menuTitles.license = $t('menu_license')
 
-        reader.send('sys:createMenu', menuTitles)
+        runtimeData.reader.send('sys:createMenu', menuTitles)
     }
 }
 
 export function updateMenu(config: {id: string, action: string, value: any}) {
     // MacOS：更新菜单
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
-        reader.send('sys:updateMenu', config)
+    if (runtimeData.reader) {
+        runtimeData.reader.send('sys:updateMenu', config)
     }
 }
 
 export function createIpc() {
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
-        reader.on('bot:flushUser', () => {
+    if (runtimeData.reader) {
+        runtimeData.reader.on('bot:flushUser', () => {
             reloadUsers()
             popInfo.add(PopType.INFO, app.config.globalProperties.$t('pop_reload_user_success'))
         })
-        reader.on('bot:logout', () => {
+        runtimeData.reader.on('bot:logout', () => {
             remove('auto_connect')
             Connector.close()
         })
-        reader.on('app:about', () => {
+        runtimeData.reader.on('app:about', () => {
             const popInfo = {
                 title: app.config.globalProperties.$t('menu_about') + ' ' + app.config.globalProperties.$t('name'),
                 template: AboutPan,
@@ -386,10 +374,10 @@ export function createIpc() {
             }
             runtimeData.popBoxList.push(popInfo)
         })
-        reader.on('app:changeTab', (event, name) => {
+        runtimeData.reader.on('app:changeTab', (event, name) => {
             document.getElementById('bar-' + name.toLowerCase())?.click()
         })
-        reader.on('app:openLink', (event, link) => {
+        runtimeData.reader.on('app:openLink', (event, link) => {
             openLink(link)
         })
     }

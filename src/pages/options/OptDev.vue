@@ -255,20 +255,16 @@ export default defineComponent({
             console.log('=========================')
             console.log(runtimeData)
             console.log('=========================')
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:openDevTools')
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:openDevTools')
             }
         },
         async printVersionInfo() {
 
             // electron：索要 electron 信息
             let addInfo = undefined
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if(reader) {
-                addInfo = await reader.invoke('opt:getSystemInfo')
+            if(runtimeData.reader) {
+                addInfo = await runtimeData.reader.invoke('opt:getSystemInfo')
             }
 
             const browser = detect() as BrowserInfo
@@ -373,10 +369,8 @@ export default defineComponent({
                                     .replace(/^ +/, '')
                                     .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
                             })
-                            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-                            const reader = electron ? electron.ipcRenderer : null
-                            if (reader) {
-                                reader.sendSync('opt:clearAll')
+                            if (runtimeData.reader) {
+                                runtimeData.reader.sendSync('opt:clearAll')
                             }
                             location.reload()
                         }
@@ -391,10 +385,8 @@ export default defineComponent({
             runtimeData.popBoxList.push(popInfo)
         },
         restartapp() {
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:relaunch')
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:relaunch')
             }
         }
     },

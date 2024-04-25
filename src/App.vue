@@ -139,8 +139,11 @@
                         @userClick="changeChat">
                     </Friends>
                 </div>
-                <div class="layui-tab-item">
-                    <Options :config="runtimeData.sysConfig" :info="runtimeData.loginInfo" :status="loginInfo">
+                <div class="layui-tab-item opt-main-tab">
+                    <Options
+                        :config="runtimeData.sysConfig"
+                        :info="runtimeData.loginInfo"
+                        :status="loginInfo">
                     </Options>
                 </div>
             </div>
@@ -276,10 +279,8 @@ export default defineComponent({
          * electron 窗口操作
          */
         controllWin (name: string) {
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:' + name)
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:' + name)
             }
         },
 
@@ -445,15 +446,18 @@ export default defineComponent({
         window.moYu = () => { return 'undefined' }
         // 页面加载完成后
         window.onload = async () => {
-            createMenu()
-            createIpc()
             // 初始化平台信息
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
+            runtimeData.tags.isElectron = (process.env.IS_ELECTRON as unknown) as boolean && window.require != undefined
+            const electron = runtimeData.tags.isElectron ? window.require('electron') : null
             const reader = electron ? electron.ipcRenderer : null
+            runtimeData.reader = reader
             if (reader) {
                 this.platform = await reader.invoke('sys:getPlatform')
                 runtimeData.tags.platform = this.platform
             }
+            // Electron：初始化
+            createMenu()
+            createIpc()
             // 加载补充样式
             logger.info('正在装载补充样式……')
             if(this.platform == 'darwin') {
@@ -461,9 +465,11 @@ export default defineComponent({
                     logger.info('macOS 附加样式加载完成')
                 })
             }
-            import('@/assets/css/append/append_new.css').then(() => {
-                logger.info('UI 附加样式加载完成')
-            })
+            if(runtimeData.tags.isElectron) {
+                import('@/assets/css/append/append_new.css').then(() => {
+                    logger.info('UI 附加样式加载完成')
+                })
+            }
             // 加载开发者相关
             if (process.env.NODE_ENV == 'development') {
                 document.title = 'Stapxs QQ Lite (Dev)'
@@ -484,6 +490,7 @@ export default defineComponent({
                 const app = document.getElementById('base-app')
                 if(app) app.classList.add('withBar')
             }
+            Option.runAS('opt_auto_gtk', Option.get('opt_auto_gtk'))
             // 加载密码保存和自动连接
             loginInfo.address = runtimeData.sysConfig.address
             if(runtimeData.sysConfig.save_password && runtimeData.sysConfig.save_password != true) {
@@ -493,9 +500,6 @@ export default defineComponent({
             if(runtimeData.sysConfig.auto_connect == true) {
                 this.connect()
             }
-            // 加载其他内容
-            runtimeData.tags.isElectron = (process.env.IS_ELECTRON as unknown) as boolean
-            Option.runAS('opt_auto_gtk', Option.get('opt_auto_gtk'))
             // 初始化完成
             logger.debug(this.$t('log_welcome'))
             logger.debug(this.$t('log_runtime') + ': ' + process.env.NODE_ENV)
