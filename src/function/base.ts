@@ -35,13 +35,20 @@ export class Logger {
      */
     add(type: LogType, args: string) {
         const logLevel = Option.get('log_level')
-        // PS：info 级别是指除了 ws、ui 和 debug 类型以外的其他日志
-        if (logLevel === 'all' && (type === LogType.WS || type === LogType.UI) ||
-            logLevel === 'debug' && type === LogType.DEBUG ||
-            logLevel === 'info' && type === LogType.INFO ||
-            logLevel === 'err' && type === LogType.ERR) {
+        // PS：WS, UI, ERR, INFO, DEBUG
+        // all 将会输出以上全部类型，debug 将会输出 DEBUG、UI，info 将会输出 INFO，err 将会输出 ERR
+        if (logLevel === 'all') {
+            this.print(type, args)
+        } else if (logLevel === 'debug' && (type === LogType.DEBUG || type === LogType.UI)) {
+            this.print(type, args)
+        } else if (logLevel === 'info' && type === LogType.INFO) {
+            this.print(type, args)
+        } else if (logLevel === 'err' && type === LogType.ERR) {
             this.print(type, args)
         }
+    }
+    info(args: string) {
+        this.add(LogType.INFO, args)
     }
     error(args: string) {
         this.add(LogType.ERR, args)

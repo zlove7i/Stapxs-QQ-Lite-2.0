@@ -579,8 +579,7 @@
         height: 100%;
     }
     .opt-main > div:first-child {
-        margin-left: -20px;
-        width: 0;
+        display: none;
     }
 
     .opt-item {

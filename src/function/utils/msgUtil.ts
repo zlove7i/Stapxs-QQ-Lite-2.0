@@ -175,8 +175,9 @@ export function getMsgRawTxt(message: [{ [key: string]: any }]): string {
             case 'at': if(message[i].text == undefined) { break }
             // eslint-disable-next-line
             case 'text': back += message[i].text.replaceAll('\n', ' ').replaceAll('\r', ' '); break
-            case 'face':
-            case 'bface': back += '[表情]'; break
+            case 'face': back += '[表情]'; break
+            case 'mface':
+            case 'bface': back += message[i].text; break
             case 'image': back += '[图片]'; break
             case 'record': back += '[语音]'; break
             case 'video': back += '[视频]'; break

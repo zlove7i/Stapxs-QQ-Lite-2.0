@@ -53,13 +53,14 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: false
         },
+        maximizable: false,
         // macOS
         fullscreen: false,
         titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
         trafficLightPosition: { x: 11, y: 10 },
         vibrancy: 'fullscreen-ui',
         transparent: true,
-        visualEffectState: 'active'
+        // visualEffectState: 'active'
     })
     win.once('focus', () => {if(win)win.flashFrame(false)})
     mainWindowState.manage(win)     // 窗口状态管理器

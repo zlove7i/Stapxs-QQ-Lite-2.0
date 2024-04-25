@@ -212,3 +212,29 @@
     width: 40px !important;
     height: 40px !important;
 }
+
+.note-base {
+    padding: 5px 20px 5px 15px;
+    font-size: 0.7rem;
+}
+.exp-header {
+    margin-left: 0 !important;
+    font-size: 0.8rem;
+}
+.chat-pan > div.new-msg {
+    height: 35px;
+}
+.chat-pan > div.new-msg > div > svg {
+    padding: 10px;
+    width: 13px;
+    height: 13px;
+}
+.chat-pan > div.new-msg > div > span {
+    margin-left: 0;
+}
+
+@media (max-width: 700px) {
+    .main-body > ul {
+        height: 60px !important;
+    }
+}

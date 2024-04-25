@@ -454,13 +454,15 @@ export default defineComponent({
                 this.platform = await reader.invoke('sys:getPlatform')
                 runtimeData.tags.platform = this.platform
             }
+            // 加载补充样式
+            logger.info('正在装载补充样式……')
             if(this.platform == 'darwin') {
                 import('@/assets/css/append/append_mac.css').then(() => {
-                    logger.debug('macOS 附加样式加载完成')
+                    logger.info('macOS 附加样式加载完成')
                 })
             }
             import('@/assets/css/append/append_new.css').then(() => {
-                logger.debug('测试 UI 附加样式加载完成')
+                logger.info('UI 附加样式加载完成')
             })
             // 加载开发者相关
             if (process.env.NODE_ENV == 'development') {

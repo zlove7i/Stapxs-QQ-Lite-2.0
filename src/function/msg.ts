@@ -711,9 +711,9 @@ function newMsg(data: any) {
                 runtimeData.onMsgList[index].message_id = data.message_id
                 if (data.message_type === 'group') {
                     const name = (data.sender.card && data.sender.card !== '') ? data.sender.card : data.sender.nickname
-                    runtimeData.onMsgList[index].raw_msg = name + ': ' + data.raw_message
+                    runtimeData.onMsgList[index].raw_msg = name + ': ' + getMsgRawTxt(data.raw_message)
                 } else {
-                    runtimeData.onMsgList[index].raw_msg = data.raw_message
+                    runtimeData.onMsgList[index].raw_msg = getMsgRawTxt(data.raw_message)
                 }
                 runtimeData.onMsgList[index].time = Number(data.time) * 1000
                 return true

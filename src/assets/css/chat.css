@@ -126,6 +126,7 @@ textarea {
 .chat-pan > div.new-msg > div {
     background: rgba(var(--color-card-1-rgb), 0.7);
     backdrop-filter: blur(50px);
+    justify-content: center;
     border-radius: 40px;
     align-items: center;
     margin-right: -7px;
