@@ -42,26 +42,44 @@ async function createWindow() {
     })
     const store = new Store()
     const noWindow = await store.get('opt_no_window')
-    win = new BrowserWindow({
+    let windowConfig = {
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
         height: mainWindowState.height,
         icon: path.join(__dirname,'./public/img/icons/icon.png'),
-        frame: noWindow === "true" ? false : true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
         },
-        maximizable: false,
-        // macOS
-        fullscreen: false,
-        titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
-        trafficLightPosition: { x: 11, y: 10 },
-        vibrancy: 'fullscreen-ui',
-        transparent: true,
-        // visualEffectState: 'active'
-    })
+        transparent: true
+    } as Electron.BrowserWindowConstructorOptions
+    // macOS
+    if(process.platform === 'darwin') {
+        windowConfig = {
+            ...windowConfig,
+            maximizable: false,
+            fullscreen: false,
+            titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
+            trafficLightPosition: { x: 11, y: 10 },
+            vibrancy: 'fullscreen-ui',
+            // visualEffectState: 'active'
+        }
+    } else {
+        windowConfig = {
+            ...windowConfig,
+            frame: noWindow === "true" ? false : true
+        }
+    }
+    // Windows
+    if(process.platform === 'win32') {
+        windowConfig = {
+            ...windowConfig,
+            frame: false
+        }
+        store.set('opt_no_window', 'true')
+    }
+    win = new BrowserWindow(windowConfig)
     win.once('focus', () => {if(win)win.flashFrame(false)})
     mainWindowState.manage(win)     // 窗口状态管理器
     console.log('Create main window to complete.')
