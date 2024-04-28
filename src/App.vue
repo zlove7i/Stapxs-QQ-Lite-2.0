@@ -224,8 +224,6 @@
 
 <script lang="ts">
 import Spacing from 'spacingjs/src/spacing'
-import cmp from 'semver-compare'
-import appInfo from '../package.json'
 import app from '@/main'
 import Option from '@/function/option'
 import Umami from '@bitprojects/umami-logger-typescript'
@@ -235,14 +233,12 @@ import { Connector, login as loginInfo } from '@/function/connect'
 import { Logger, popList, PopInfo } from '@/function/base'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
-import { getTrueLang, gitmojiToEmoji } from '@/function/utils/systemUtil'
-import { openLink, loadHistory, createMenu, createIpc } from './function/utils/appUtil'
+import * as App from './function/utils/appUtil'
 
 import Options from '@/pages/Options.vue'
 import Friends from '@/pages/Friends.vue'
 import Messages from '@/pages/Messages.vue'
 import Chat from '@/pages/Chat.vue'
-import WelPan from '@/components/WelPan.vue'
 
 export default defineComponent({
     name: 'App',
@@ -262,7 +258,7 @@ export default defineComponent({
             get: Option.get,
             popInfo: new PopInfo(),
             appMsgs: popList,
-            loadHistory: loadHistory,
+            loadHistory: App.loadHistory,
             loginInfo: loginInfo,
             runtimeData: runtimeData,
             tags: {
@@ -446,7 +442,7 @@ export default defineComponent({
         window.moYu = () => { return 'undefined' }
         // 页面加载完成后
         window.onload = async () => {
-            // 初始化平台信息
+            // 初始化全局参数
             runtimeData.tags.isElectron = (process.env.IS_ELECTRON as unknown) as boolean && window.require != undefined
             const electron = runtimeData.tags.isElectron ? window.require('electron') : null
             const reader = electron ? electron.ipcRenderer : null
@@ -455,37 +451,22 @@ export default defineComponent({
                 this.platform = await reader.invoke('sys:getPlatform')
                 runtimeData.tags.platform = this.platform
             }
-            // Electron：初始化
-            createMenu()
-            createIpc()
-            // 加载补充样式
-            logger.info('正在装载补充样式……')
-            try {
-                import(`@/assets/css/append/append_${this.platform}.css`).then(() => {
-                    logger.info(`${this.platform} 平台附加样式加载完成`)
-                })
-            } catch (e) {
-                logger.info('未找到对应平台的附加样式')
-            }
-            if(this.platform == 'darwin') {
-                import('@/assets/css/append/append_vibrancy.css').then(() => {
-                    logger.info('透明 UI 附加样式加载完成')
-                })
-            }
-            if(runtimeData.tags.isElectron) {
-                import('@/assets/css/append/append_new.css').then(() => {
-                    logger.info('UI 附加样式加载完成')
-                })
-            }
-            // 加载开发者相关
+            app.config.globalProperties.$viewer = this.viewerBody
+            // 初始化波浪动画
+            runtimeData.tags.loginWaveTimer = this.waveAnimation(document.getElementById('login-wave'))
+            // AMAP：初始化高德地图
+            window._AMapSecurityConfig =  process.env.VUE_APP_AMAP_SECRET
+            // =========================================================================
+            // 初始化功能
+            App.createMenu()            // Electron：创建菜单
+            App.createIpc()             // Electron：创建 IPC 通信
+            App.loadAppendStyle()       // 加载额外样式
+            // 加载开发者相关功能
             if (process.env.NODE_ENV == 'development') {
                 document.title = 'Stapxs QQ Lite (Dev)'
                 // 布局检查工具
                 Spacing.start()
             }
-            app.config.globalProperties.$viewer = this.viewerBody
-            // 初始化波浪动画
-            runtimeData.tags.loginWaveTimer = this.waveAnimation(document.getElementById('login-wave'))
             // 加载设置项
             runtimeData.sysConfig = Option.load()
             // PS：重新再应用部分需要加载完成后才能应用的设置
@@ -507,6 +488,7 @@ export default defineComponent({
             if(runtimeData.sysConfig.auto_connect == true) {
                 this.connect()
             }
+            // =========================================================================
             // 初始化完成
             logger.debug(this.$t('log_welcome'))
             logger.debug(this.$t('log_runtime') + ': ' + process.env.NODE_ENV)
@@ -519,215 +501,13 @@ export default defineComponent({
                 Umami.initialize({
                     baseUrl: process.env.VUE_APP_MU_ADDRESS,
                     websiteId: process.env.VUE_APP_MU_ID,
-                });
+                })
             } else if (process.env.NODE_ENV == 'development') {
                 logger.debug(this.$t('log_GA_auto_closed'))
             }
-            // AMAP：初始化高德地图
-            window._AMapSecurityConfig = 
-                process.env.VUE_APP_AMAP_SECRET
-            // 检查版本
-            const appVersion = appInfo.version
-            const cacheVersion = localStorage.getItem('version')
-            if (!cacheVersion || cmp(appVersion, cacheVersion) == 1) {
-                // 更新 cookie 中的版本信息并抓取更新日志
-                localStorage.setItem('version', appVersion)
-                logger.debug(this.$t('version_updated') + ': ' + cacheVersion + ' -> ' + appVersion)
-                // 从 Github 获取更新日志
-                const fetchData = {
-                    sha: 'next',
-                    per_page: '10'
-                } as Record<string, string>
-                const url = 'https://api.github.com/repos/stapxs/stapxs-qq-lite-2.0/commits'
-                    + '?' + new URLSearchParams(fetchData).toString()
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        // // 正式版本的更新记录必须是 # 开头的 commit
-                        // if (process.env.NODE_ENV == 'production') {
-                        //     data = data.filter((item: any) => item.commit.message.startsWith('#'))
-                        // }
-                        const json = data[0]
-                        // 动态生成更新记录部分
-                        const div = document.createElement('div')
-                        div.className = 'update-info'
-                        // 标题
-                        const title = document.createElement('span')
-                        title.innerText = app.config.globalProperties.$t('update_history')
-                        const version = document.createElement('a')
-                        version.innerText = 'v' + appVersion + ' - ' + fetchData.sha
-                        div.appendChild(title)
-                        div.appendChild(version)
-
-                        const titlediv = document.createElement('div')
-                        titlediv.className = 'title'
-                        const ava = document.createElement('img')
-                        ava.src = json.author.avatar_url
-                        const name = document.createElement('a')
-                        name.innerText = json.commit.author.name
-                        name.href = json.author.html_url
-                        const time = document.createElement('span')
-                        time.innerText = Intl.DateTimeFormat(getTrueLang(),
-                            { year: 'numeric', month: 'short', day: 'numeric' })
-                            .format(new Date(json.commit.author.date))
-                        titlediv.appendChild(ava)
-                        titlediv.appendChild(name)
-                        titlediv.appendChild(time)
-                        div.appendChild(titlediv)
-
-                        // 内容
-                        const updateInfo = json.commit.message.split('\n')
-                        const condiv = document.createElement('div')
-                        condiv.className = 'info'
-                        const updatetitle = document.createElement('span')
-                        updatetitle.innerText = ' ' + updateInfo[0]
-                        condiv.appendChild(updatetitle)
-                        const textdiv = document.createElement('div')
-                        for (let i = 1; i < updateInfo.length; i++) {
-                            const baseinfodiv = document.createElement('div')
-                            const baseinfo = document.createElement('span')
-                            let text = updateInfo[i]
-                            if(text.startsWith(':')) {
-                                const end = text.substring(1).indexOf(':')
-                                const name = text.substring(0, end + 2)
-                                const emj = gitmojiToEmoji(name)
-                                console.log(name + ' / ' + emj)
-                                if(emj != undefined) {
-                                    text = text.replace(name, emj)
-                                }
-                            }
-                            baseinfo.innerText = text
-                            baseinfodiv.appendChild(baseinfo)
-                            textdiv.appendChild(baseinfodiv)
-                        }
-                        if (updateInfo.length > 1) {
-                            condiv.appendChild(textdiv)
-                        }
-
-                        div.appendChild(condiv)
-
-                        // 构建 popBox 内容
-                        const popInfo = {
-                            html: div.outerHTML,
-                            button: [
-                                {
-                                    text: app.config.globalProperties.$t('btn_see'),
-                                    fun: () => openLink('https://github.com/Stapxs/Stapxs-QQ-Lite-2.0/commit/' + json.sha)
-                                },{
-                                    text: app.config.globalProperties.$t('btn_know'),
-                                    master: true,
-                                    fun: () => { runtimeData.popBoxList.shift() }
-                                }
-                            ]
-                        }
-                        runtimeData.popBoxList.push(popInfo)
-                    })
-                    .catch(function (e) {
-                        console.log(e)
-                    })
-            }
-            // 检查打开次数
-            const times = localStorage.getItem('times')
-            if (times != null) {
-                const getTimes = Number(times) + 1
-                localStorage.setItem('times', getTimes.toString())
-                if (getTimes % 50 == 0) {
-                    // 构建 HTML
-                    let html = '<div style="display:flex;flex-direction:column;padding:10px 5%;align-items:center;">'
-                    html += '<svg style="height:2rem;fill:var(--color-font);margin-bottom:20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M16 0H144c5.3 0 10.3 2.7 13.3 7.1l81.1 121.6c-49.5 4.1-94 25.6-127.6 58.3L2.7 24.9C-.6 20-.9 13.7 1.9 8.5S10.1 0 16 0zM509.3 24.9L401.2 187.1c-33.5-32.7-78.1-54.2-127.6-58.3L354.7 7.1c3-4.5 8-7.1 13.3-7.1H496c5.9 0 11.3 3.2 14.1 8.5s2.5 11.5-.8 16.4zM432 336c0 97.2-78.8 176-176 176s-176-78.8-176-176s78.8-176 176-176s176 78.8 176 176zM264.4 241.1c-3.4-7-13.3-7-16.8 0l-22.4 45.4c-1.4 2.8-4 4.7-7 5.1L168 298.9c-7.7 1.1-10.7 10.5-5.2 16l36.3 35.4c2.2 2.2 3.2 5.2 2.7 8.3l-8.6 49.9c-1.3 7.6 6.7 13.5 13.6 9.9l44.8-23.6c2.7-1.4 6-1.4 8.7 0l44.8 23.6c6.9 3.6 14.9-2.2 13.6-9.9l-8.6-49.9c-.5-3 .5-6.1 2.7-8.3l36.3-35.4c5.6-5.4 2.5-14.8-5.2-16l-50.1-7.3c-3-.4-5.7-2.4-7-5.1l-22.4-45.4z"/></svg>'
-                    html += `<span>${this.$t('popbox_open_times_1', { times: getTimes })}</span>`
-                    html += `<span>${this.$t('popbox_open_times_2')}</span>`
-                    html += '</div>'
-                    const popInfo = {
-                        title: this.$t('popbox_ohh'),
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>',
-                        html: html,
-                        button: [
-                            {
-                                text: app.config.globalProperties.$t('btn_open_times_no'),
-                                fun: () => { runtimeData.popBoxList.shift() }
-                            }, {
-                                text: app.config.globalProperties.$t('btn_open_times_ok'),
-                                master: true,
-                                fun: () => { openLink('https://github.com/Stapxs/Stapxs-QQ-Lite-2.0');runtimeData.popBoxList.shift(); }
-                            }
-                        ]
-                    }
-                    runtimeData.popBoxList.push(popInfo)
-                }
-            } else {
-                localStorage.setItem('times', '1')
-                // 首次打开，显示首次打开引导信息
-                const popInfo = {
-                    template: WelPan,
-                    button: [
-                        {
-                            text: 'close',
-                            master: true,
-                            fun: () => { runtimeData.popBoxList.shift() }
-                        }
-                    ]
-                }
-                runtimeData.popBoxList.push(popInfo)
-            }
-            // 获取公告通知
-            const url = 'https://lib.stapxs.cn/download/stapxs-qq-lite/notice-config.json'
-            const fetchData = {
-                time: new Date().getTime().toString()
-            } as Record<string, string>
-            fetch(url + '?' + new URLSearchParams(fetchData).toString())
-                .then(response => response.json())
-                .then(data => {
-                    // 获取已显示过的公告 ID
-                    let noticeShow = [] as number[]
-                    const showId = localStorage.getItem('notice_show')
-                    if (showId) {
-                        noticeShow = showId.split(',').map((id: string) => parseInt(id))
-                    }
-                    // 解析公告列表
-                    data.forEach((notice: any) => {
-                        let isShowInDate = false
-                        if(!notice.show_date) {
-                            isShowInDate = true
-                        }
-                        else if(typeof notice.show_date == 'string' && new Date().toDateString() === new Date(notice.show_date).toDateString()) {
-                            isShowInDate = true
-                        } else if(typeof notice.show_date == 'object') {
-                            notice.show_date.forEach((date: number) => {
-                                if(new Date().toDateString() === new Date(date).toDateString()) {
-                                    isShowInDate = true
-                                }
-                            })
-                        }
-                        if (notice.version == 2 && noticeShow.indexOf((notice.id).toString()) < 0 && isShowInDate) {
-                            // 加载公告弹窗列表
-                            for (let i = 0; i < notice.pops.length; i++) {
-                                // 添加弹窗
-                                const info = notice.pops[i]
-                                const popInfo = {
-                                    title: info.title,
-                                    html: info.html ? info.html : '',
-                                    button: [
-                                        {
-                                            text: (notice.pops.length > 1 && i != notice.pops.length - 1) ? app.config.globalProperties.$t('btn_next') : app.config.globalProperties.$t('btn_yes'),
-                                            master: true,
-                                            fun: () => {
-                                                // 添加已读记录
-                                                if (noticeShow.indexOf(notice.id) < 0) {
-                                                    noticeShow.push(notice.id)
-                                                }
-                                                localStorage.setItem('notice_show', noticeShow.toString())
-                                                // 关闭弹窗
-                                                runtimeData.popBoxList.shift()
-                                            }
-                                        }
-                                    ]
-                                }
-                                runtimeData.popBoxList.push(popInfo)
-                            }
-                        }
-                    })
-                })
+            App.checkUpdate()                // 检查更新
+            App.checkOpenTimes()             // 检查打开次数
+            App.checkNotice()                // 检查公告
         }
     }
 })

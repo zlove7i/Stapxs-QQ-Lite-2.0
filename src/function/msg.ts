@@ -12,14 +12,14 @@
 import qed from '@/assets/qed.txt'
 
 import app from '@/main'
-import Option, { run } from './option'
+import Option from './option'
 import xss from 'xss'
 import pinyin from 'pinyin'
 
 import Umami from '@bitprojects/umami-logger-typescript'
 
 import { buildMsgList, getMsgData, parseMsgList, getMsgRawTxt } from '@/function/utils/msgUtil'
-import { htmlDecodeByRegExp, randomNum } from '@/function/utils/systemUtil'
+import { getViewTime, htmlDecodeByRegExp, randomNum } from '@/function/utils/systemUtil'
 import { reloadUsers, downloadFile, updateMenu } from '@/function/utils/appUtil'
 import { reactive, nextTick, markRaw, defineAsyncComponent } from 'vue'
 import { PopInfo, PopType, Logger, LogType } from './base'
@@ -127,10 +127,14 @@ function saveBotInfo(msg: { [key: string]: any }) {
                 try {
                     // eslint-disable-next-line
                     msgPath = require(`@/assets/pathMap/${data.app_name}.yaml`)
+                    logger.debug('加载映射表：' + msgPath.name)
+                    if(msgPath.redirect) {
+                        msgPath = require(`@/assets/pathMap/${msgPath.redirect}.yaml`)
+                        logger.debug('加载映射表（重定向）：' + msgPath.name)
+                    }
                     runtimeData.jsonMap = msgPath
-                    logger.debug('加载 JSON 映射表：' + msgPath._name)
                 } catch (ex) {
-                    logger.debug('加载 JSON 映射表失败：' + ex)
+                    logger.debug('加载映射表失败：' + ex)
                 }
             }
             // 继续获取后续内容
@@ -266,12 +270,14 @@ function updateTopMag(msg: any, echoList: string[]) {
             list = parseMsgList(list, msgPath.message_list.type, msgPath.message_value)
             const raw = getMsgRawTxt(list[0].message)
             const sender = list[0].sender
+            const time = list[0].time
             // 更新置顶列表
             runtimeData.onMsgList.forEach((item) => {
                 if (item.user_id == id) {
                     item.raw_msg = raw
                 } else if(item.group_id == id) {
                     item.raw_msg = sender.nickname + ': ' + raw
+                    item.time = getViewTime(Number(time))
                 }
             })
         }
@@ -354,7 +360,7 @@ function saveMsg(msg: any, append = undefined as undefined | string) {
                 } else {
                     user.raw_msg = getMsgRawTxt(lastMsg.message)
                 }
-                user.time = lastMsg.time
+                user.time = getViewTime(Number(lastMsg.time))
             }
         }
 
@@ -774,7 +780,7 @@ function newMsg(data: any) {
                 } else {
                     runtimeData.onMsgList[index].raw_msg = getMsgRawTxt(data.message)
                 }
-                runtimeData.onMsgList[index].time = Number(data.time) * 1000
+                runtimeData.onMsgList[index].time = getViewTime(Number(data.time))
                 return true
             }
             return false

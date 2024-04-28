@@ -2,16 +2,24 @@ import app from '@/main'
 import zh from '@/assets/l10n/zh-CN.json'
 import FileDownloader from 'js-file-downloader'
 import option, { remove } from '@/function/option'
+import cmp from 'semver-compare'
+import appInfo from '../../../package.json'
+
+
+import AboutPan from '@/components/AboutPan.vue'
+import UpdatePan from '@/components/UpdatePan.vue'
+import WelPan from '@/components/WelPan.vue'
 
 import { Rule, Stylesheet, Declaration } from 'css'
-import { PopInfo, PopType } from '@/function/base'
+import { Logger, PopInfo, PopType } from '@/function/base'
 import { Connector, login } from '@/function/connect'
 import { runtimeData } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import { hslToRgb, rgbToHsl } from '@/function/utils/systemUtil'
-import AboutPan from '@/components/AboutPan.vue'
+import { toRaw } from 'vue'
 
 const popInfo = new PopInfo()
+const logger = new Logger()
 
 /**
  * 滚动到目标消息（不自动加载）
@@ -116,40 +124,13 @@ export function loadHistoryMessage(id: number, type: string, count = 20, echo = 
  * 重新加载用户列表
  */
 export function reloadUsers() {
+    // 加载用户列表
     if (login.status) {
-        // 加载用户列表
         runtimeData.userList = []
         Connector.send('get_friend_list', {}, 'getFriendList')
         Connector.send('get_group_list', {}, 'getGroupList')
         Connector.send('get_system_msg', {}, 'getSystemMsg')
         Connector.send('get_class_info', {}, "getClassInfo")
-        // 给置顶的用户刷新最新一条的消息用于显示
-        runtimeData.userList.forEach((item) => {
-            debugger
-            if (item.always_top) {
-                // 发起获取历史消息请求
-                const type = item.user_id ? 'user' : 'group'
-                const id = item.user_id ? item.user_id : item.group_id
-                let name
-                if(runtimeData.jsonMap.message_list && type != "group") {
-                    name = runtimeData.jsonMap.message_list.private_name
-                } else {
-                    name = runtimeData.jsonMap.message_list.name
-                }
-                Connector.send(
-                    name ?? 'get_chat_history',
-                    {
-                        message_type: runtimeData.jsonMap.message_list.message_type[type],
-                        group_id: type == "group" ? id : undefined,
-                        user_id: type != "group" ? id : undefined,
-                        message_seq: 0,
-                        message_id: 0,
-                        count: 1
-                    },
-                    'getChatHistoryTop'
-                )
-            }
-        })
     }
 }
 
@@ -409,4 +390,227 @@ export function createIpc() {
             openLink(link)
         })
     }
+}
+
+export function loadAppendStyle() {
+    const platform = runtimeData.tags.platform
+    logger.info('正在装载补充样式……')
+    if (runtimeData.tags.isElectron) {
+        import('@/assets/css/append/append_new.css').then(() => {
+            logger.info('UI 2.0 附加样式加载完成')
+        })
+    }
+    try {
+        import(`@/assets/css/append/append_${platform}.css`).then(() => {
+            logger.info(`${platform} 平台附加样式加载完成`)
+        })
+    } catch (e) {
+        logger.info('未找到对应平台的附加样式')
+    }
+    if (platform == 'darwin') {
+        import('@/assets/css/append/append_vibrancy.css').then(() => {
+            logger.info('透明 UI 附加样式加载完成')
+        })
+    }
+}
+
+export function checkUpdate() {
+    const $t = app.config.globalProperties.$t
+    const mainTree = 'next'                                 // 更新主分支
+    const appVersion = appInfo.version                      // 当前版本
+    const cacheVersion = localStorage.getItem('version')
+
+    if (!runtimeData.tags.isElectron) {
+        if (!cacheVersion || cmp(appVersion, cacheVersion) == 1) {
+            localStorage.setItem('version', appVersion)
+            logger.debug($t('version_updated') + ': ' + cacheVersion + ' -> ' + appVersion)
+            showGitChangeLog(appVersion, mainTree, 'web')
+        }
+    } else {
+        const packageUrl = `https://raw.githubusercontent.com/Stapxs/Stapxs-QQ-Lite-2.0/${mainTree}/package.json`
+        fetch(packageUrl).then((response) => {
+            if (response.ok) {
+                response.json().then((data) => {
+                    if (cmp(appVersion, data.version) == -1) {
+                        showGitChangeLog(data.version, mainTree, 'electron')
+                    }
+                })
+            }
+        })
+    }
+}
+
+function showGitChangeLog(version: string, mainTree: string, from: string) {
+    const $t = app.config.globalProperties.$t
+    // 获取更新记录
+    const fetchData = {
+        sha: 'next',
+        per_page: '10'
+    } as Record<string, string>
+    const updateUrl = 'https://api.github.com/repos/stapxs/stapxs-qq-lite-2.0/commits'
+        + '?' + new URLSearchParams(fetchData).toString()
+    fetch(updateUrl).then((response) => {
+        if (response.ok) {
+            response.json().then((info) => {
+                // 过滤掉一些不作为更新记录的提交
+                info = info.filter((item: any) => !item.commit.message.startsWith('[nl]'))
+                const json = info[0]
+                if (from == 'web' || json.commit.message.indexOf('[build-electron]') > 0) {
+                    const popInfo = {
+                        template: UpdatePan,
+                        templateValue: toRaw({
+                            version: version + ' - ' + mainTree,
+                            user: {
+                                name: json.commit.author.name,
+                                avatar: json.author.avatar_url,
+                                date: json.commit.author.date,
+                                url: json.author.html_url
+                            },
+                            message: json.commit.message,
+                            from: from
+                        }),
+                        button: [
+                            {
+                                text: $t('btn_see'),
+                                fun: () => openLink('https://github.com/Stapxs/Stapxs-QQ-Lite-2.0/commit/' + json.sha)
+                            }, {
+                                text: $t('btn_know'),
+                                master: true,
+                                fun: () => { runtimeData.popBoxList.shift() }
+                            }
+                        ]
+                    }
+                    if(from != 'web') {
+                        popInfo.button = [
+                            {
+                                text: $t('btn_know'),
+                                fun: () => runtimeData.popBoxList.shift()
+                            }, {
+                                text: $t('btn_download_update'),
+                                master: true,
+                                fun: () => {
+                                    const url = 'https://github.com/Stapxs/Stapxs-QQ-Lite-2.0/releases'
+                                    const electron = window.require('electron')
+                                    const shell = electron ? electron.shell : null
+                                    if (shell) {
+                                        shell.openExternal(url)
+                                    } else {
+                                        window.open(url)
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                    runtimeData.popBoxList.push(popInfo)
+                }
+            })
+        }
+    })
+}
+
+export function checkOpenTimes() {
+    const $t = app.config.globalProperties.$t
+    const times = localStorage.getItem('times')
+    if (times != null) {
+        const getTimes = Number(times) + 1
+        localStorage.setItem('times', getTimes.toString())
+        if (getTimes % 50 == 0) {
+            // 构建 HTML
+            let html = '<div style="display:flex;flex-direction:column;padding:10px 5%;align-items:center;">'
+            html += '<svg style="height:2rem;fill:var(--color-font);margin-bottom:20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M16 0H144c5.3 0 10.3 2.7 13.3 7.1l81.1 121.6c-49.5 4.1-94 25.6-127.6 58.3L2.7 24.9C-.6 20-.9 13.7 1.9 8.5S10.1 0 16 0zM509.3 24.9L401.2 187.1c-33.5-32.7-78.1-54.2-127.6-58.3L354.7 7.1c3-4.5 8-7.1 13.3-7.1H496c5.9 0 11.3 3.2 14.1 8.5s2.5 11.5-.8 16.4zM432 336c0 97.2-78.8 176-176 176s-176-78.8-176-176s78.8-176 176-176s176 78.8 176 176zM264.4 241.1c-3.4-7-13.3-7-16.8 0l-22.4 45.4c-1.4 2.8-4 4.7-7 5.1L168 298.9c-7.7 1.1-10.7 10.5-5.2 16l36.3 35.4c2.2 2.2 3.2 5.2 2.7 8.3l-8.6 49.9c-1.3 7.6 6.7 13.5 13.6 9.9l44.8-23.6c2.7-1.4 6-1.4 8.7 0l44.8 23.6c6.9 3.6 14.9-2.2 13.6-9.9l-8.6-49.9c-.5-3 .5-6.1 2.7-8.3l36.3-35.4c5.6-5.4 2.5-14.8-5.2-16l-50.1-7.3c-3-.4-5.7-2.4-7-5.1l-22.4-45.4z"/></svg>'
+            html += `<span>${$t('popbox_open_times_1', { times: getTimes })}</span>`
+            html += `<span>${$t('popbox_open_times_2')}</span>`
+            html += '</div>'
+            const popInfo = {
+                title: $t('popbox_ohh'),
+                svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>',
+                html: html,
+                button: [
+                    {
+                        text: $t('btn_open_times_no'),
+                        fun: () => { runtimeData.popBoxList.shift() }
+                    }, {
+                        text: $t('btn_open_times_ok'),
+                        master: true,
+                        fun: () => { openLink('https://github.com/Stapxs/Stapxs-QQ-Lite-2.0'); runtimeData.popBoxList.shift(); }
+                    }
+                ]
+            }
+            runtimeData.popBoxList.push(popInfo)
+        }
+    } else {
+        localStorage.setItem('times', '1')
+        // 首次打开，显示首次打开引导信息
+        const popInfo = {
+            template: WelPan,
+            button: [
+                {
+                    text: 'close',
+                    master: true,
+                    fun: () => { runtimeData.popBoxList.shift() }
+                }
+            ]
+        }
+        runtimeData.popBoxList.push(popInfo)
+    }
+}
+
+export function checkNotice() {
+    const url = 'https://lib.stapxs.cn/download/stapxs-qq-lite/notice-config.json'
+    const fetchData = {
+        time: new Date().getTime().toString()
+    } as Record<string, string>
+    fetch(url + '?' + new URLSearchParams(fetchData).toString())
+        .then(response => response.json())
+        .then(data => {
+            // 获取已显示过的公告 ID
+            let noticeShow = [] as number[]
+            const showId = localStorage.getItem('notice_show')
+            if (showId) {
+                noticeShow = showId.split(',').map((id: string) => parseInt(id))
+            }
+            // 解析公告列表
+            data.forEach((notice: any) => {
+                let isShowInDate = false
+                if (!notice.show_date) {
+                    isShowInDate = true
+                }
+                else if (typeof notice.show_date == 'string' && new Date().toDateString() === new Date(notice.show_date).toDateString()) {
+                    isShowInDate = true
+                } else if (typeof notice.show_date == 'object') {
+                    notice.show_date.forEach((date: number) => {
+                        if (new Date().toDateString() === new Date(date).toDateString()) {
+                            isShowInDate = true
+                        }
+                    })
+                }
+                if (notice.version == 2 && noticeShow.indexOf((notice.id).toString()) < 0 && isShowInDate) {
+                    // 加载公告弹窗列表
+                    for (let i = 0; i < notice.pops.length; i++) {
+                        // 添加弹窗
+                        const info = notice.pops[i]
+                        const popInfo = {
+                            title: info.title,
+                            html: info.html ? info.html : '',
+                            button: [
+                                {
+                                    text: (notice.pops.length > 1 && i != notice.pops.length - 1) ? app.config.globalProperties.$t('btn_next') : app.config.globalProperties.$t('btn_yes'),
+                                    master: true,
+                                    fun: () => {
+                                        // 添加已读记录
+                                        if (noticeShow.indexOf(notice.id) < 0) {
+                                            noticeShow.push(notice.id)
+                                        }
+                                        localStorage.setItem('notice_show', noticeShow.toString())
+                                        // 关闭弹窗
+                                        runtimeData.popBoxList.shift()
+                                    }
+                                }
+                            ]
+                        }
+                        runtimeData.popBoxList.push(popInfo)
+                    }
+                }
+            })
+        })
 }

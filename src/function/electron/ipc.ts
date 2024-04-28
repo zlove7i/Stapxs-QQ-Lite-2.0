@@ -38,14 +38,14 @@ export function regIpcListener() {
         store.store = arg
     })
     // 获取设置
-    ipcMain.on('opt:getAll', (event, arg) => {
+    ipcMain.on('opt:getAll', (event) => {
         event.returnValue = store.store
     })
     ipcMain.on('opt:get', (event, arg) => {
         event.returnValue = store.get(arg)
     })
     // 重置设置
-    ipcMain.on('opt:clearAll', (event, arg) => {
+    ipcMain.on('opt:clearAll', (event) => {
         store.clear() 
         event.returnValue = true
     })
@@ -92,7 +92,7 @@ export function regIpcListener() {
                         }
                     }
                 })
-                item.on('done', (event, state) => {
+                item.on('done', (event) => {
                     win?.setProgressBar(-1)
                     const sender = (event as any).sender
                     if(sender)
