@@ -84,6 +84,7 @@
 }
 .chat-pan {
     box-shadow: -5px 0px 4px -5px var(--color-shader);
+    left: 270px !important;
 }
 
 @media (max-width: 500px) {

@@ -117,11 +117,39 @@ export function loadHistoryMessage(id: number, type: string, count = 20, echo = 
  */
 export function reloadUsers() {
     if (login.status) {
+        // 加载用户列表
         runtimeData.userList = []
         Connector.send('get_friend_list', {}, 'getFriendList')
         Connector.send('get_group_list', {}, 'getGroupList')
         Connector.send('get_system_msg', {}, 'getSystemMsg')
         Connector.send('get_class_info', {}, "getClassInfo")
+        // 给置顶的用户刷新最新一条的消息用于显示
+        runtimeData.userList.forEach((item) => {
+            debugger
+            if (item.always_top) {
+                // 发起获取历史消息请求
+                const type = item.user_id ? 'user' : 'group'
+                const id = item.user_id ? item.user_id : item.group_id
+                let name
+                if(runtimeData.jsonMap.message_list && type != "group") {
+                    name = runtimeData.jsonMap.message_list.private_name
+                } else {
+                    name = runtimeData.jsonMap.message_list.name
+                }
+                Connector.send(
+                    name ?? 'get_chat_history',
+                    {
+                        message_type: runtimeData.jsonMap.message_list.message_type[type],
+                        group_id: type == "group" ? id : undefined,
+                        user_id: type != "group" ? id : undefined,
+                        message_seq: 0,
+                        message_id: 0,
+                        count: 1
+                    },
+                    'getChatHistoryTop'
+                )
+            }
+        })
     }
 }
 

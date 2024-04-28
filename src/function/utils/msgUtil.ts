@@ -19,13 +19,13 @@ export function getMsgData(name: string, msg: { [key: string]: any }, map: strin
         if (typeof map == 'string' || map.source != undefined) {
             try {
                 back = jp.query(msg, replaceJPValue(typeof map == 'string' ? map : map.source))
-                if(typeof map != 'string' && map.list != undefined) {
+                if (typeof map != 'string' && map.list != undefined) {
                     const backList = [] as any[]
                     back.forEach((item) => {
                         const itemObj = {} as any
                         Object.keys(map.list).forEach((key: string) => {
-                            if(map.list[key] && map.list[key] != '') {
-                                if(map.list[key].startsWith('/'))
+                            if (map.list[key] && map.list[key] != '') {
+                                if (map.list[key].startsWith('/'))
                                     itemObj[key] = item[map.list[key].substring(1)]
                                 else
                                     itemObj[key] = jp.query(item, replaceJPValue(map.list[key]))[0]
@@ -35,17 +35,17 @@ export function getMsgData(name: string, msg: { [key: string]: any }, map: strin
                     })
                     back = backList
                 }
-            } catch(ex) {
+            } catch (ex) {
                 logger.error(`解析消息 JSON 错误：${name} -> ${map}`)
                 console.log(ex)
             }
         } else {
             const data = {} as { [key: string]: any }
             Object.keys(map).forEach((key) => {
-                if(map[key] != undefined && map[key] !== '' && !key.startsWith('_'))
+                if (map[key] != undefined && map[key] !== '' && !key.startsWith('_'))
                     try {
                         data[key] = jp.query(msg, replaceJPValue(map[key]))[0]
-                    } catch(ex) {
+                    } catch (ex) {
                         logger.error(`解析 JSON 错误：${name} -> ${map}`)
                         console.log(ex)
                     }
@@ -66,11 +66,11 @@ function replaceJPValue(jpStr: string) {
  */
 export function getFace(id: number) {
     // eslint-disable-next-line
-    try { return require('./../../assets/img/qq-face/gif/s' + id + '.gif') } catch {}
+    try { return require('./../../assets/img/qq-face/gif/s' + id + '.gif') } catch { }
     // eslint-disable-next-line
-    try { return require('./../../assets/img/qq-face/gif/s' + id + '.png') } catch {}
+    try { return require('./../../assets/img/qq-face/gif/s' + id + '.png') } catch { }
     // eslint-disable-next-line
-    try { return require('./../../assets/img/qq-face/static/s' + id + '.png') } catch {}
+    try { return require('./../../assets/img/qq-face/static/s' + id + '.png') } catch { }
     return false
 }
 
@@ -102,7 +102,7 @@ export function buildMsgList(msgList: { [key: string]: any }): { [key: string]: 
 
 export function parseMsgList(list: any, map: string, valueMap: { [key: string]: any }): any[] {
     // 消息类型的特殊处理
-    switch(map.split('|')[0]) {
+    switch (map.split('|')[0]) {
         case 'cq-code': {
             // 这儿会默认处理成 oicq2 的格式，所以 CQCode 消息请使用 oicq2 配置文件修改
             for (let i = 0; i < list.length; i++) {
@@ -114,12 +114,12 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
             // 非扁平化消息体，这儿会取 _type 后半段的 JSON Path 将结果并入 message
             for (let i = 0; i < list.length; i++) {
                 let msgList = list[i].message
-                if(msgList == undefined) {
+                if (msgList == undefined) {
                     msgList = list[i].content
                 }
-                for(let j = 0; j < msgList.length; j++) {
+                for (let j = 0; j < msgList.length; j++) {
                     const data = getMsgData('message_list_message', msgList[j], map.split('|')[1])
-                    if(data != undefined && data.length == 1) {
+                    if (data != undefined && data.length == 1) {
                         msgList[j] = Object.assign(msgList[j], data[0])
                     }
                 }
@@ -127,26 +127,26 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
         }
     }
     // 消息字段的标准化特殊处理
-    if(valueMap != undefined) {
+    if (valueMap != undefined) {
         for (let i = 0; i < list.length; i++) {
             Object.entries(valueMap).forEach(([type, values]) => {
                 Object.entries(values).forEach(([key, value]) => {
                     let content = list[i].message
-                    if(content == undefined) {
+                    if (content == undefined) {
                         content = list[i].content
                     }
                     content.forEach((item: any) => {
-                        if(item.type == type) {
+                        if (item.type == type) {
                             item[key] = jp.query(item, value as string)[0]
                         }
                         // 顺便把没用的 data 删了，这边要注意 item.data 必须是个对象
                         // 因为有些消息类型的 data 就叫 data
-                        if(typeof item.data == 'object') {
+                        if (typeof item.data == 'object') {
                             delete item.data
                         }
                     })
                     // 其他处理
-                    if(list[i].content != undefined) {
+                    if (list[i].content != undefined) {
                         // 把 content 改成 message
                         list[i].message = content
                         delete list[i].content
@@ -171,31 +171,36 @@ export function parseMsgList(list: any, map: string, valueMap: { [key: string]: 
 export function getMsgRawTxt(message: [{ [key: string]: any }]): string {
     let back = ''
     for (let i = 0; i < message.length; i++) {
-        switch (message[i].type) {
-            case 'at': if(message[i].text == undefined) { break }
-            // eslint-disable-next-line
-            case 'text': back += message[i].text.replaceAll('\n', ' ').replaceAll('\r', ' '); break
-            case 'face': back += '[表情]'; break
-            case 'mface':
-            case 'bface': back += message[i].text; break
-            case 'image': back += '[图片]'; break
-            case 'record': back += '[语音]'; break
-            case 'video': back += '[视频]'; break
-            case 'file': back += '[文件]'; break
-            case 'json':  { 
-                try {
-                    back += JSON.parse(message[i].data).prompt;
-                } catch (error) {
-                    back += '[卡片消息]';
+        try {
+            switch (message[i].type) {
+                case 'at': if (message[i].text == undefined) { break }
+                // eslint-disable-next-line
+                case 'text': back += message[i].text.replaceAll('\n', ' ').replaceAll('\r', ' '); break
+                case 'face': back += '[表情]'; break
+                case 'mface':
+                case 'bface': back += message[i].text; break
+                case 'image': back += '[图片]'; break
+                case 'record': back += '[语音]'; break
+                case 'video': back += '[视频]'; break
+                case 'file': back += '[文件]'; break
+                case 'json': {
+                    try {
+                        back += JSON.parse(message[i].data).prompt;
+                    } catch (error) {
+                        back += '[卡片消息]';
+                    }
+                    break
                 }
-                break
+                case 'xml': {
+                    let name = message[i].data.substring(message[i].data.indexOf('<source name="') + 14)
+                    name = name.substring(0, name.indexOf('"'))
+                    back += '[' + name + ']'
+                    break
+                }
             }
-            case 'xml': {
-                let name = message[i].data.substring(message[i].data.indexOf('<source name="') + 14)
-                name = name.substring(0, name.indexOf('"'))
-                back += '[' + name + ']'
-                break
-            }
+        } catch (error) {
+            logger.error('解析消息短格式错误：' + JSON.stringify(message[i]))
+            console.log(error)
         }
     }
     return back
@@ -209,8 +214,8 @@ export function getMsgRawTxt(message: [{ [key: string]: any }]): string {
 export function parseJSONCQCode(data: any) {
     let back = ''
     data.forEach((item: any) => {
-        if(item.type != 'text') {
-            let body = '[CQ:' + item.type +','
+        if (item.type != 'text') {
+            let body = '[CQ:' + item.type + ','
             Object.keys(item).forEach((key: any) => {
                 body += `${key}=${item[key]},`
             })
@@ -249,10 +254,10 @@ export function parseCQ(data: any) {
     // 处理为 object
     const back: { [ket: string]: any }[] = []
     reg = /\[CQ:([^,]+),(.*)\]/g
-    if(list !== null) {
+    if (list !== null) {
         list.forEach((item) => {
             if (item.match(reg) !== null) {
-                const info: {[key: string]: any} = { type: RegExp.$1 }
+                const info: { [key: string]: any } = { type: RegExp.$1 }
                 RegExp.$2.split(',').forEach((key) => {
                     const kv = []
                     kv.push(key.substring(0, key.indexOf('=')))
@@ -263,7 +268,7 @@ export function parseCQ(data: any) {
                     info[kv[0]] = kv[1]
                 })
                 // 对文本消息特殊处理
-                if(info.type == 'text') {
+                if (info.type == 'text') {
                     info.text = RegExp.$2
                         .substring(RegExp.$2.lastIndexOf('=') + 1)
                         .replaceAll('\\n', '\n')
@@ -273,7 +278,7 @@ export function parseCQ(data: any) {
                     info.text = a.innerText
                 }
                 // 对回复消息进行特殊处理
-                if(info.type == 'reply') {
+                if (info.type == 'reply') {
                     data.source = {
                         user_id: info.user_id,
                         seq: info.seq,

@@ -83,7 +83,19 @@
 }
 .friend-body > div > div a.time {
     font-size: 0.7rem;
+}
+.friend-body > svg {
+    padding: 10px;
+    height: 14px;
+    width: 14px;
+}
 
+.mumber-info > div:first-child {
+    padding: 10px;
+}
+.mumber-info > div:first-child img {
+    height: 45px;
+    width: 45px;
 }
 
 .chat-pan {
@@ -395,6 +407,9 @@
 }
 .pop-box-body > div.button > button {
     height: 30px;
+}
+.pop-box-more {
+    margin-top: 15px;
 }
 
 .view-iframe {
