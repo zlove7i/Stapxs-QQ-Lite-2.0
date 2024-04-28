@@ -27,6 +27,7 @@
             </div>
         </template>
     </TransitionGroup>
+    <div v-if="platform == 'darwin'" class="controller mac-controller"></div>
     <div id="base-app">
         <div class="layui-tab layui-tab-brief main-body">
             <ul class="layui-tab-title" :style="get('fs_adaptation') > 0 ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
@@ -138,8 +139,11 @@
                         @userClick="changeChat">
                     </Friends>
                 </div>
-                <div class="layui-tab-item">
-                    <Options :config="runtimeData.sysConfig" :info="runtimeData.loginInfo" :status="loginInfo">
+                <div class="layui-tab-item opt-main-tab">
+                    <Options
+                        :config="runtimeData.sysConfig"
+                        :info="runtimeData.loginInfo"
+                        :status="loginInfo">
                     </Options>
                 </div>
             </div>
@@ -167,7 +171,7 @@
         <Transition>
             <div class="pop-box" v-if="runtimeData.popBoxList.length > 0">
                 <div :class="'pop-box-body ss-card' + (runtimeData.popBoxList[0].full ? ' full' : '') + (get('option_view_no_window') == true ? '' : ' window')"
-                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px));' + (get('fs_adaptation') != undefined ? ` margin-bottom: ${40 + Number(get('fs_adaptation'))}px;` : '')">
+                    :style="'transform: translate(-50%, calc(-50% - ' + ((runtimeData.popBoxList.length > 3 ? 3 : runtimeData.popBoxList.length) * 10) + 'px));' + (get('fs_adaptation') > 0 ? ` margin-bottom: ${40 + Number(get('fs_adaptation'))}px;` : '')">
                     <header v-show="runtimeData.popBoxList[0].title != undefined">
                         <div
                             v-if="runtimeData.popBoxList[0].svg != undefined"
@@ -251,6 +255,7 @@ export default defineComponent({
     data () {
         return {
             dev: process.env.NODE_ENV == 'development',
+            platform: undefined,
             Connector: Connector,
             defineAsyncComponent: defineAsyncComponent,
             save: Option.runASWEvent,
@@ -274,10 +279,8 @@ export default defineComponent({
          * electron 窗口操作
          */
         controllWin (name: string) {
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:' + name)
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:' + name)
             }
         },
 
@@ -442,9 +445,38 @@ export default defineComponent({
         const logger = new Logger()
         window.moYu = () => { return 'undefined' }
         // 页面加载完成后
-        window.onload = () => {
+        window.onload = async () => {
+            // 初始化平台信息
+            runtimeData.tags.isElectron = (process.env.IS_ELECTRON as unknown) as boolean && window.require != undefined
+            const electron = runtimeData.tags.isElectron ? window.require('electron') : null
+            const reader = electron ? electron.ipcRenderer : null
+            runtimeData.reader = reader
+            if (reader) {
+                this.platform = await reader.invoke('sys:getPlatform')
+                runtimeData.tags.platform = this.platform
+            }
+            // Electron：初始化
             createMenu()
             createIpc()
+            // 加载补充样式
+            logger.info('正在装载补充样式……')
+            try {
+                import(`@/assets/css/append/append_${this.platform}.css`).then(() => {
+                    logger.info(`${this.platform} 平台附加样式加载完成`)
+                })
+            } catch (e) {
+                logger.info('未找到对应平台的附加样式')
+            }
+            if(this.platform == 'darwin') {
+                import('@/assets/css/append/append_vibrancy.css').then(() => {
+                    logger.info('透明 UI 附加样式加载完成')
+                })
+            }
+            if(runtimeData.tags.isElectron) {
+                import('@/assets/css/append/append_new.css').then(() => {
+                    logger.info('UI 附加样式加载完成')
+                })
+            }
             // 加载开发者相关
             if (process.env.NODE_ENV == 'development') {
                 document.title = 'Stapxs QQ Lite (Dev)'
@@ -465,6 +497,7 @@ export default defineComponent({
                 const app = document.getElementById('base-app')
                 if(app) app.classList.add('withBar')
             }
+            Option.runAS('opt_auto_gtk', Option.get('opt_auto_gtk'))
             // 加载密码保存和自动连接
             loginInfo.address = runtimeData.sysConfig.address
             if(runtimeData.sysConfig.save_password && runtimeData.sysConfig.save_password != true) {
@@ -474,9 +507,6 @@ export default defineComponent({
             if(runtimeData.sysConfig.auto_connect == true) {
                 this.connect()
             }
-            // 加载其他内容
-            runtimeData.tags.isElectron = (process.env.IS_ELECTRON as unknown) as boolean
-            Option.runAS('opt_auto_gtk', Option.get('opt_auto_gtk'))
             // 初始化完成
             logger.debug(this.$t('log_welcome'))
             logger.debug(this.$t('log_runtime') + ': ' + process.env.NODE_ENV)

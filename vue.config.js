@@ -75,6 +75,7 @@ module.exports = {
                 appId: 'com.stapxs.qqweb',
                 productName: 'Stapxs QQ Lite',
                 copyright: 'Copyright © 2022-2024 Stapx Steve [林槐]',
+                // buildDependenciesFromSource: true,
 
                 directories: {
                     output: 'dist_electron/out'

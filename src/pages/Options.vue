@@ -11,8 +11,8 @@
         <div>
             <div class="layui-tab layui-tab-brief"
                 style="display: flex;flex-direction: column;margin: 0;overflow: hidden;height: 100%;padding: 10px;">
-                <span class="opt-title">{{ $t('option_title') }}</span>
                 <ul class="layui-tab-title opt-tab ss-card">
+                    <li class="option-title">{{ $t('option_title') }}</li>
                     <li class="layui-this">{{ $t('option_bar_account') }}</li>
                     <li>{{ $t('option_bar_view') }}</li>
                     <li>{{ $t('option_bar_function') }}</li>
@@ -20,6 +20,7 @@
                     <li class="opt-about">{{ $t('menu_about') }}</li>
                 </ul>
                 <div class="opt-body layui-tab-content">
+                    <div class="layui-tab-item"></div>
                     <div class="layui-tab-item layui-show">
                         <OptAccount :config="config"></OptAccount>
                     </div>

@@ -894,7 +894,7 @@ export default defineComponent({
 
         showForWard() {
             this.tags.showForwardPan = true
-            const showList = toRaw(runtimeData.onMsgList).reverse()
+            const showList = runtimeData.onMsgList.reverse()
             // 将 forWardList 中 showList 之中的条目挪到最前面
             showList.forEach((item) => {
                 const index = this.forwardList.indexOf(item)
@@ -903,6 +903,7 @@ export default defineComponent({
                     this.forwardList.unshift(item)
                 }
             })
+            runtimeData.onMsgList.reverse()
         },
 
         /**

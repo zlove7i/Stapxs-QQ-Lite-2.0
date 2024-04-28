@@ -1,0 +1,94 @@
+.home-body {
+    background: rgba(var(--color-card-rgb), 0.6);
+}
+.login-pan-card {
+    background: transparent;
+    max-width: 240px !important;
+}
+.login-pan-card:hover {
+    box-shadow: none;
+}
+.wave-pan {
+    display: none;
+}
+.login-pan-card label {
+    border: 1px solid var(--color-main);
+    opacity: 0.8;
+    background: unset;
+}
+
+.main-body > ul {
+    background: rgba(var(--color-card-rgb), 0.6);
+}
+.friend-list {
+    background: rgba(var(--color-card-rgb), 0.6);
+    padding-top: 20px;
+}
+.friend-list > div:first-child {
+    margin: 15px 15px 15px 0;
+}
+.friend-list > div:first-child label {
+    background: rgba(var(--color-card-2-rgb), 0.7) !important;
+}
+.friend-list > div:last-child {
+    width: 100%;
+    padding: 0 12px 0 0;
+}
+.friend-list > div:last-child > div:last-child {
+    margin-bottom: 10px;
+}
+.friend-body {
+    margin-left: 0;
+}
+
+.opt-main-tab {
+    display: block !important;
+}
+.opt-main-tab.layui-show .opt-main > div:last-child {
+    margin-left: 0 !important;
+}
+.opt-main {
+    background: rgba(var(--color-card-rgb), 0.6);
+    height: calc(100% - 10px);
+    padding-left: 3px;
+}
+.opt-main > div:first-child {
+    width: 285px !important;
+    margin-left: -25px;
+}
+.opt-main > div:last-child {
+    margin-left: -65px !important;
+    background: var(--color-bg);
+    margin: -3px -5px 0 5px;
+    box-shadow: -5px 0px 4px -5px var(--color-shader);
+    transition: margin .3s;
+    height: calc(100% + 5px);
+    padding: 3px 10px 0 10px;
+}
+
+.about-pan > div {
+    box-shadow: none !important;
+    background: transparent;
+}
+.contributors-card {
+    background: rgba(var(--color-card-2-rgb), 0.7) !important;
+}
+.bcd-body {
+    background: rgba(var(--color-card-rgb), 0.7) !important;
+}
+.jump-card {
+    background: rgba(var(--color-card-2-rgb), 0.7) !important;
+    margin-right: 15px !important;
+    margin-left: 10px;
+    margin-bottom: -15px;
+}
+.chat-pan {
+    box-shadow: -5px 0px 4px -5px var(--color-shader);
+    left: 270px !important;
+}
+
+@media (max-width: 500px) {
+    .chat-pan > div.info {
+        margin-top: 35px;
+    }
+}

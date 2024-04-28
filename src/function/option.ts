@@ -51,10 +51,8 @@ const configFunction: { [key: string]: (value: any) => void } = {
 
 function updateWinColorOpt(value: boolean) {
     if(value == true) {
-        const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-        const reader = electron ? electron.ipcRenderer : null
-        if (reader) {
-            reader.on('sys:WinColorChanged', (event, params) => {
+        if (runtimeData.reader) {
+            runtimeData.reader.on('sys:WinColorChanged', (event, params) => {
                 updateWinColor(params)
             })
         }
@@ -272,10 +270,8 @@ function changeChatView(name: string | undefined) {
 export function load(): { [key: string]: any } {
     let data = {} as { [key: string]: any }
 
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
-        data = reader.sendSync('opt:getAll')
+    if (runtimeData.reader) {
+        data = runtimeData.reader.sendSync('opt:getAll')
     } else {
         const str = localStorage.getItem('options')
         if (str != null) {
@@ -363,10 +359,8 @@ export function get(name: string): any {
  * @returns 设置项值（如果没有则为 null）
  */
 export function getRaw(name: string) {
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if (reader) {
-        return reader.sendSync('opt:get', name)
+    if (runtimeData.reader) {
+        return runtimeData.reader.sendSync('opt:get', name)
     } else {
         // 解析拆分 cookie 并执行各个设置项的初始化方法
         const str = localStorage.getItem('options')
@@ -409,15 +403,13 @@ export function saveAll(config = {} as {[key: string]: any}) {
     localStorage.setItem('options', str)
 
     // electron：将配置保存
-    const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-    const reader = electron ? electron.ipcRenderer : null
-    if(reader) {
+    if(runtimeData.reader) {
         const saveConfig = config
         Object.keys(config).forEach(key => {
             const isObject = typeof config[key] == 'object'
             saveConfig[key] = isObject ? JSON.stringify(config[key]) : config[key]
         })
-        reader.send('opt:saveAll', saveConfig)
+        runtimeData.reader.send('opt:saveAll', saveConfig)
     }
 }
 

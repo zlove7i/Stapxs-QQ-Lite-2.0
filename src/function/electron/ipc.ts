@@ -11,6 +11,10 @@ const store = new Store()
 let template = [] as any[]
 
 export function regIpcListener() {
+    // 获取系统平台
+    ipcMain.handle('sys:getPlatform', () => {
+        return process.platform
+    })
     // 关闭窗口
     ipcMain.on('win:close', () => {
         if(win) win.close()

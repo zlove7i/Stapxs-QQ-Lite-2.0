@@ -45,6 +45,7 @@
                             <span v-else-if="item.id == 394" class="msg-face-long"><span v-for="i in 15" :key="data.message_id + '-l-' + i">🐲</span></span>
                             <svg v-else :class="'msg-face-svg' + (isMe ? ' me': '')" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-v-658eb408=""><path d="M0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256zM256 432C332.1 432 396.2 382 415.2 314.1C419.1 300.4 407.8 288 393.6 288H118.4C104.2 288 92.92 300.4 96.76 314.1C115.8 382 179.9 432 256 432V432zM176.4 160C158.7 160 144.4 174.3 144.4 192C144.4 209.7 158.7 224 176.4 224C194 224 208.4 209.7 208.4 192C208.4 174.3 194 160 176.4 160zM336.4 224C354 224 368.4 209.7 368.4 192C368.4 174.3 354 160 336.4 160C318.7 160 304.4 174.3 304.4 192C304.4 209.7 318.7 224 336.4 224z" data-v-658eb408=""></path></svg>
                         </template>
+                        <img v-else-if="item.type == 'mface' && item.url" @load="scrollButtom" @error="imgLoadFail" :class="imgStyle(data.message.length, index, item.asface)" :src="item.url">
                         <span v-else-if="item.type == 'mface' && item.text" class="msg-unknown">{{ item.text }}</span>
                         <span v-else-if="item.type == 'bface'" style="font-style: italic;opacity: 0.7;">[ {{ $t('chat_fun_menu_pic') }}：{{ item.text }} ]</span>
                         <div v-else-if="item.type == 'at'" v-show="isAtShow(data.source, item.qq)" :class="getAtClass(item.qq)">

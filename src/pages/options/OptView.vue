@@ -176,39 +176,6 @@
                     <span :style="`color: var(--color-font${fsAdaptationShow / 50 > 0.5 ? '-r' : ''})`">{{ fsAdaptationShow }} px</span>
                 </div>
             </div>
-            <template v-if="runtimeData.tags.isElectron">
-                <div class="opt-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 32C419.3 32 448 60.65 448 96V416C448 451.3 419.3 480 384 480H64C28.65 480 0 451.3 0 416V96C0 60.65 28.65 32 64 32H384zM384 80H64C55.16 80 48 87.16 48 96V416C48 424.8 55.16 432 64 432H384C392.8 432 400 424.8 400 416V96C400 87.16 392.8 80 384 80z"/></svg>
-                    <div>
-                        <span>{{ $t('option_view_no_window') }}</span>
-                        <span>{{ $t('option_view_no_window_tip') }}</span>
-                    </div>
-                    <label class="ss-switch">
-                        <input type="checkbox" @change="save($event);restartapp()" name="opt_no_window"
-                            v-model="runtimeData.sysConfig.opt_no_window">
-                        <div>
-                            <div></div>
-                        </div>
-                    </label>
-                </div>
-                <template v-if="runtimeData.sysConfig.opt_no_window && browser.os && browser.os.toLowerCase().indexOf('windows') < 0">
-                    <!-- 特别针对 Windows，诶我就是不给用 -->
-                    <div class="opt-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zm0-160c-53 0-96-43-96-96s43-96 96-96s96 43 96 96s-43 96-96 96z"/></svg>
-                        <div>
-                            <span>{{ $t('option_view_no_window_mac_style') }}</span>
-                            <span>{{ $t('option_view_no_window_mac_style_tip') }}</span>
-                        </div>
-                        <label class="ss-switch">
-                            <input type="checkbox" @change="save($event)" name="opt_no_window_mac_style"
-                                v-model="runtimeData.sysConfig.opt_no_window_mac_style">
-                            <div>
-                                <div></div>
-                            </div>
-                        </label>
-                    </div>
-                </template>
-            </template>
         </div>
     </div>
 </template>
@@ -256,10 +223,8 @@ export default defineComponent({
         },
 
         restartapp() {
-            const electron = (process.env.IS_ELECTRON as any) === true ? window.require('electron') : null
-            const reader = electron ? electron.ipcRenderer : null
-            if (reader) {
-                reader.send('win:relaunch')
+            if (runtimeData.reader) {
+                runtimeData.reader.send('win:relaunch')
             }
         },
         
