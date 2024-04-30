@@ -27,7 +27,7 @@
             </div>
         </template>
     </TransitionGroup>
-    <div v-if="platform == 'darwin'" class="controller mac-controller"></div>
+    <div v-if="runtimeData.tags.platform == 'darwin'" class="controller mac-controller"></div>
     <div id="base-app">
         <div class="layui-tab layui-tab-brief main-body">
             <ul class="layui-tab-title" :style="get('fs_adaptation') > 0 ? `padding-bottom: ${get('fs_adaptation')}px;` : ''">
@@ -251,7 +251,6 @@ export default defineComponent({
     data () {
         return {
             dev: process.env.NODE_ENV == 'development',
-            platform: undefined,
             Connector: Connector,
             defineAsyncComponent: defineAsyncComponent,
             save: Option.runASWEvent,
@@ -448,8 +447,7 @@ export default defineComponent({
             const reader = electron ? electron.ipcRenderer : null
             runtimeData.reader = reader
             if (reader) {
-                this.platform = await reader.invoke('sys:getPlatform')
-                runtimeData.tags.platform = this.platform
+                runtimeData.tags.platform = await reader.invoke('sys:getPlatform')
             }
             app.config.globalProperties.$viewer = this.viewerBody
             // 初始化波浪动画

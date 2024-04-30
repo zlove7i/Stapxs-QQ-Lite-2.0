@@ -41,7 +41,6 @@ async function createWindow() {
         defaultHeight: 800
     })
     const store = new Store()
-    const noWindow = await store.get('opt_no_window')
     let windowConfig = {
         x: mainWindowState.x,
         y: mainWindowState.y,
@@ -49,32 +48,28 @@ async function createWindow() {
         height: mainWindowState.height,
         icon: path.join(__dirname,'./public/img/icons/icon.png'),
         webPreferences: {
-            nodeIntegration: true,
+            nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
             contextIsolation: false
-        },
-        transparent: true
+        }
     } as Electron.BrowserWindowConstructorOptions
-    // macOS
     if(process.platform === 'darwin') {
+        // macOS
         windowConfig = {
             ...windowConfig,
             maximizable: false,
             fullscreen: false,
-            titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
+            titleBarStyle: 'hidden',
             trafficLightPosition: { x: 11, y: 10 },
             vibrancy: 'fullscreen-ui',
+            transparent: true,
             // visualEffectState: 'active'
         }
-    } else {
+    } else if(process.platform === 'win32') {
+        // Windows
         windowConfig = {
             ...windowConfig,
-            frame: noWindow === "true" ? false : true
-        }
-    }
-    // Windows
-    if(process.platform === 'win32') {
-        windowConfig = {
-            ...windowConfig,
+            backgroundColor: '#00000000',
+            backgroundMaterial: 'acrylic',
             frame: false
         }
         store.set('opt_no_window', 'true')
