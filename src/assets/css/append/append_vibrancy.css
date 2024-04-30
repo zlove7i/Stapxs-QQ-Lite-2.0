@@ -22,7 +22,6 @@
 }
 .friend-list {
     background: rgba(var(--color-card-rgb), 0.6);
-    padding-top: 20px;
 }
 .friend-list > div:first-child {
     margin: 15px 15px 15px 0;
@@ -59,10 +58,10 @@
 .opt-main > div:last-child {
     margin-left: -65px !important;
     background: var(--color-bg);
-    margin: -3px -5px 0 5px;
+    margin: -5px -5px 0 5px;
     box-shadow: -5px 0px 4px -5px var(--color-shader);
     transition: margin .3s;
-    height: calc(100% + 5px);
+    height: calc(100% + 7px);
     padding: 3px 10px 0 10px;
 }
 

@@ -1,22 +1,17 @@
-#app {
-    margin: 10px;
-    border-radius: 7px;
-    overflow: hidden;
-    box-shadow: 0 0 10px #0005;
-    height: calc(100% - 20px);
+body {
+    font: 14px 'SF Pro Text', 'Source Han Sans', sans-serif !important;
 }
 
 #base-app.withBar {
-    height: calc(100% - 36px);
-    padding-top: 36px;
+    height: calc(100% - 35px);
+    padding-top: 35px;
 }
+
 .top-bar {
-    border-bottom: 1px solid var(--color-card-2);
     border-radius: 7px 7px 0 0;
+    background: transparent;
     box-shadow: unset;
-    background: var(--color-bg);
     height: 35px;
-    width: calc(100% - 20px);
 }
 .top-bar>img, .top-bar>svg {
     height: 16px;
@@ -29,21 +24,41 @@
 .top-bar>div.controller>div {
     padding: 7px;
 }
-.top-bar>div.controller>div>svg{
+.top-bar>div.controller>div>svg {
     height: 14px;
 }
 
-.chat-pan {
-    height: calc(100% - 50px) !important;
-    border-radius: 0 0 7px 0;
-    margin-right: 10px;
+.main-body > div {
+    margin-top: -35px;
+    height: calc(100% + 35px);
 }
-.pop-box>div:last-child {
+.main-body > ul {
+    margin-top: -35px;
+    height: calc(100% + 35px);
+    padding-left: 5px;
+}
+
+.top-bar {
+    margin-bottom: 0 !important;
+}
+.top-bar>span,
+.top-bar>img, .top-bar>svg {
+    display: none;
+}
+
+.chat-pan.withBar {
+    left: 275px !important;
+    top: 0;
     height: calc(100% - 20px);
-    margin-top: 10px;
-    width: calc(100% - 20px);
-    margin-left: 10px;
+    padding-top: 20px;
 }
-.chat-pan>div.bg {
-    border-radius: 0 0 7px 0;
+.card-info-pan-bg {
+    margin-top: -20px;
+}
+.chat-info {
+    margin: calc(50vh - 20px) 0 0 50%;
+}
+.opt-main>div:last-child {
+    padding-top: 25px !important;
+    height: calc(100% - 17px) !important;
 }

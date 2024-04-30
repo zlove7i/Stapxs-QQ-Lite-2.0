@@ -19,7 +19,7 @@ module.exports = {
                 {
                     test: /\.yaml$/,
                     use: 'js-yaml-loader',
-                  }
+                }
             ]
         }
     },
@@ -71,6 +71,7 @@ module.exports = {
          * @type {import('vue-cli-plugin-electron-builder').PluginOptions}
          */
         electronBuilder: {
+            nodeIntegration: true,
             builderOptions: {
                 appId: 'com.stapxs.qqweb',
                 productName: 'Stapxs QQ Lite',

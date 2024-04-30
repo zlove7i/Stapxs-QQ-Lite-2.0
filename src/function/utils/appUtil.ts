@@ -389,6 +389,9 @@ export function createIpc() {
         runtimeData.reader.on('app:openLink', (event, link) => {
             openLink(link)
         })
+        runtimeData.reader.on('app:logger', (event, config) => {
+            new Logger().add(config.type, config.text)
+        })
     }
 }
 
@@ -407,7 +410,7 @@ export function loadAppendStyle() {
     } catch (e) {
         logger.info('未找到对应平台的附加样式')
     }
-    if (platform == 'darwin') {
+    if (platform != 'linux') {
         import('@/assets/css/append/append_vibrancy.css').then(() => {
             logger.info('透明 UI 附加样式加载完成')
         })
