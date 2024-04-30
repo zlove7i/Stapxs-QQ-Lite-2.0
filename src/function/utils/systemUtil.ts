@@ -222,3 +222,16 @@ export function randomNum(minNum: number, maxNum: number) {
         default: return 0;
     }
 }
+
+/**
+ * 获取显示的时间，由于获得的时间戳可能是秒级的，也可能是毫秒级的，所以需要判断
+ * @param time 
+ * @param i0n 
+ */
+export function getViewTime(time: number) {
+    if (time.toString().length === 10) {
+        return time * 1000
+    } else {
+        return time
+    }
+}

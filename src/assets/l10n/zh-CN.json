@@ -189,7 +189,7 @@
   "chat_fun_menu_jin_sender": "{time}，由 {name} 设置",
   "update_history": "更新记录",
   "btn_know": "知道了",
-  "btn_see": "查看",
+  "btn_see": "查看…",
   "chat_fun_at_find_emp": "没有找到匹配的群成员",
   "l10n_author_title": "作者：",
   "option_fun_taill": "小尾巴",
@@ -306,6 +306,8 @@
   "loading": "加载中",
   "chat_msg_sending": "发送中",
   "powered_by": "驱动自",
+  "new_update": "新版本",
+  "btn_download_update": "下载更新…",
 
   "menu_about": "关于",
   "menu_update": "检查更新…",

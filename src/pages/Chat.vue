@@ -399,7 +399,7 @@ import FacePan from '@/components/FacePan.vue'
 import imageCompression from 'browser-image-compression'
 import jp from 'jsonpath'
 
-import { defineComponent, markRaw, toRaw } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 import { downloadFile, loadHistory as loadHistoryFirst } from '@/function/utils/appUtil'
 import { getTrueLang } from '@/function/utils/systemUtil'
 import { getMsgRawTxt } from '@/function/utils/msgUtil'
@@ -407,7 +407,7 @@ import { scrollToMsg } from '@/function/utils/appUtil'
 import { Logger, LogType, PopInfo, PopType } from '@/function/base'
 import { Connector, login as loginInfo } from '@/function/connect'
 import { runtimeData} from '@/function/msg'
-import { BaseChatInfoElem, MsgItemElem, SQCodeElem, GroupMemberInfoElem, UserFriendElem, UserGroupElem, BotMsgType } from '@/function/elements/information'
+import { BaseChatInfoElem, MsgItemElem, SQCodeElem, GroupMemberInfoElem, UserFriendElem, UserGroupElem } from '@/function/elements/information'
 import { v4 as uuid } from 'uuid'
 
 export default defineComponent({
@@ -912,7 +912,6 @@ export default defineComponent({
         forwardMsg (data: UserFriendElem & UserGroupElem) {
             if (this.selectedMsg) {
                 const msg = this.selectedMsg
-                const type = data.group_id ? 'group' : 'user'
                 const id = data.group_id ? data.group_id : data.user_id
                 // 关闭转发窗口
                 this.cancelForward()
