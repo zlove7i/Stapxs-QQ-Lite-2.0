@@ -321,6 +321,7 @@
   "menu_unhide": "全部显示",
   "menu_quit": "退出",
   "menu_account": "账户",
+  "menu_login": "连接",
   "menu_user_list": "用户列表（{count}）",
   "menu_flush_user": "刷新列表…",
   "menu_logout": "登出",

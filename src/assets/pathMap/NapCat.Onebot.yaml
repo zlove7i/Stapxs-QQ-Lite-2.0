@@ -63,3 +63,11 @@ set_message_read:
     private_name: mark_private_msg_as_read
 send_respond:
     name: set_msg_emoji_like
+class_list:
+    name: get_friends_with_category
+    source: $.data[*]
+    list:
+        class_id: /categoryId
+        class_name: /categroyName
+        user_count: /categroyMbCount
+        list: /buddyList

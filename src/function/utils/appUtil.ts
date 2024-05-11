@@ -382,9 +382,10 @@ export function createMenu() {
         menuTitles.selectAll = $t('menu_select_all')
 
         menuTitles.account = $t('menu_account')
+        menuTitles.login = $t('menu_login')
+        menuTitles.logout = $t('menu_logout')
         menuTitles.userList = $t('menu_user_list', { count: runtimeData.userList.length })
         menuTitles.flushUser = $t('menu_flush_user')
-        menuTitles.logout = $t('menu_logout')
 
         menuTitles.help = $t('menu_help')
         menuTitles.doc = $t('menu_doc')

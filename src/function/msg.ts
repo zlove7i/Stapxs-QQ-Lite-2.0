@@ -307,6 +307,19 @@ function saveClassInfo(data: any) {
         const names = [] as string[]
         list.forEach((item: any) => {
             names.push(Object.values(item)[0] as string)
+            // 如果分组 ID 没有返回在用户列表中而是在这儿……
+            if (item.list != undefined) {
+                item.list.forEach((user: any) => {
+                    const user_id = Number(user.uin)
+                    runtimeData.userList.forEach((get) => {
+                        if (get.user_id == user_id) {
+                            // 保存分组信息，特别关心（9999）优先覆盖
+                            if(get.class_id == undefined || item.class_id == 9999)
+                                get.class_id = item.class_id
+                        }
+                    })
+                })
+            }
         })
         const sortedData = names.sort(pinyin.compare)
 
@@ -722,6 +735,11 @@ function newMsg(data: any) {
         const loginId = runtimeData.loginInfo.uin
         const showId = runtimeData.chatInfo.show.id
         const sender = info.sender
+        // 在好友列表里找一下他
+        const user = runtimeData.userList.find((item) => {
+            return item.user_id == id || item.group_id == id
+        })
+        const isImportant = user?.class_id == 9999
 
         // 消息回调检查
         // PS：如果在新消息中获取到了自己的消息，则自动打开“停止消息回调”设置防止发送的消息重复
@@ -813,8 +831,8 @@ function newMsg(data: any) {
         if (data.sub_type === 'group') {
             data.sender.nickname = data.sender.user_id
         }
-        // (发送者不是自己 && (发送者不是群组 || 群组 AT || 群组 AT 全体 || 打开了通知全部消息)) 这些情况需要进行新消息处理
-        if (sender != loginId && (data.message_type !== 'group' || data.atme || data.atall || Option.get('notice_all') === true)) {
+        // (发送者不是自己 && (在特别关心列表里 || 发送者不是群组 || 群组 AT || 群组 AT 全体 || 打开了通知全部消息)) 这些情况需要进行新消息处理
+        if (sender != loginId && (isImportant || data.message_type !== 'group' || data.atme || data.atall || Option.get('notice_all') === true)) {
             // (发送者没有被打开 || 窗口被最小化) 这些情况需要进行消息通知
             if (id !== showId || document.hidden) {
                 // 准备消息内容
@@ -844,17 +862,17 @@ function newMsg(data: any) {
                         msgInfo.image = item.url
                     }
                 })
-                // // 检查这个用户是否有通知，有的话删除旧的
-                // // PS：这个处理逻辑主要用于防止大量消息刷大量的通知
-                // const index = notificationList.findIndex((item) => {
-                //     const tag = item.tag
-                //     const userId = Number(tag.split('/')[0])
-                //     return userId === msg.user_id || userId === msg.group_id
-                // })
-                // if (index !== -1) {
-                //     notificationList.splice(index, 1)
-                //     notificationList[index].close()
-                // }
+                // 检查这个用户是否有通知，有的话删除旧的
+                // PS：这儿的是 web 通知，electron 通知在 electron 里处理
+                const index = notificationList.findIndex((item) => {
+                    const tag = item.tag
+                    const userId = Number(tag.split('/')[0])
+                    return userId === id
+                })
+                if (index !== -1) {
+                    notificationList.splice(index, 1)
+                    notificationList[index].close()
+                }
                 // 发送消息
                 if (Option.get('close_notice') !== true) {
                     if (runtimeData.tags.isElectron) {
