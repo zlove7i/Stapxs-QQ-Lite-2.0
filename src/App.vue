@@ -231,7 +231,7 @@ import Umami from '@bitprojects/umami-logger-typescript'
 import { defineComponent, defineAsyncComponent } from 'vue'
 import { Connector, login as loginInfo } from '@/function/connect'
 import { Logger, popList, PopInfo } from '@/function/base'
-import { runtimeData } from '@/function/msg'
+import { runtimeData, notificationList } from '@/function/msg'
 import { BaseChatInfoElem } from '@/function/elements/information'
 import * as App from './function/utils/appUtil'
 
@@ -260,6 +260,7 @@ export default defineComponent({
             loadHistory: App.loadHistory,
             loginInfo: loginInfo,
             runtimeData: runtimeData,
+            notificationList: notificationList,
             tags: {
                 showChat: false,
                 isSavePwdClick: false,
@@ -360,6 +361,11 @@ export default defineComponent({
             }
             // 刷新系统消息
             Connector.send('get_system_msg', {}, 'getSystemMsg')
+
+            // 清理通知
+            if(runtimeData.reader) {
+                runtimeData.reader.send('sys:closeAllNotice', data.id)
+            }
         },
 
         /**
