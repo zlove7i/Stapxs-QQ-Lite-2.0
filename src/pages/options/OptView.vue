@@ -160,7 +160,7 @@
 </template>
 
 <script lang="ts">
-import Umami from '@bitprojects/umami-logger-typescript'
+import Umami from '@stapxs/umami-logger-typescript'
 
 import { defineComponent, toRaw } from 'vue'
 import { runtimeData } from '../../function/msg'

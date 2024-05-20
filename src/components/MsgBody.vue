@@ -131,7 +131,7 @@
 import Option from '@/function/option'
 import CardMessage from './msg-component/CardMessage.vue'
 import app from '@/main'
-import Umami from '@bitprojects/umami-logger-typescript'
+import Umami from '@stapxs/umami-logger-typescript'
 
 import { MsgBodyFuns as ViewFuns } from '@/function/model/msg-body'
 import { defineComponent } from 'vue'

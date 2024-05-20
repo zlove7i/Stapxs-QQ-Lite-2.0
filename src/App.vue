@@ -188,7 +188,7 @@
 import Spacing from 'spacingjs/src/spacing'
 import app from '@/main'
 import Option from '@/function/option'
-import Umami from '@bitprojects/umami-logger-typescript'
+import Umami from '@stapxs/umami-logger-typescript'
 
 import { defineComponent, defineAsyncComponent } from 'vue'
 import { Connector, login as loginInfo } from '@/function/connect'
@@ -463,13 +463,14 @@ export default defineComponent({
             // UM：加载 Umami 统计功能
             if (!Option.get('close_ga') && process.env.NODE_ENV == 'production') {
                 // 给页面添加一个来源域名方便在 electron 中获取
-                if(runtimeData.tags.isElectron) {
-                    document.cookie = 'origin=electron'
-                }
-                Umami.initialize({
+                const config = {
                     baseUrl: process.env.VUE_APP_MU_ADDRESS,
-                    websiteId: process.env.VUE_APP_MU_ID,
-                })
+                    websiteId: process.env.VUE_APP_MU_ID
+                } as any
+                if(runtimeData.tags.isElectron) {
+                    config.hostName = 'electron.stapxs.cn'
+                }
+                Umami.initialize(config)
             } else if (process.env.NODE_ENV == 'development') {
                 logger.debug(this.$t('log_GA_auto_closed'))
             }

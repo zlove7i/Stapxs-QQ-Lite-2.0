@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import languages from '@/assets/l10n/_l10nconfig.json'
-import Umami from '@bitprojects/umami-logger-typescript'
+import Umami from '@stapxs/umami-logger-typescript'
 
 import { defineComponent } from 'vue'
 import { runtimeData } from '@/function/msg'
